@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+   db:
+     image: mongo:7.0.5
+     ports:
+       - "27017:27017"
+     volumes:
+       - mongo-data:/data/db
+   nest:
+     depends_on:
+       - db
+     build: .
+     ports:
+       - "3000:3000"
+volumes:
+  mongo-data:
