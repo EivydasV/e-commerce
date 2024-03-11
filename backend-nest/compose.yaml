@@ -7,11 +7,63 @@ services:
        - "27017:27017"
      volumes:
        - mongo-data:/data/db
+     healthcheck:
+       test:
+         [
+           "CMD",
+           "mongo",
+           "--quiet",
+           "127.0.0.1/test",
+           "--eval",
+           "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+         ]
+       interval: 10s
+       timeout: 10s
+       retries: 5
+       start_period: 40s
    nest:
      depends_on:
        - db
+       - postgres
+       - supertokens
      build: .
      ports:
        - "3000:3000"
+     volumes:
+       - .:/app
+
+   postgres:
+     image: 'postgres:16.2'
+     environment:
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: postgres
+       POSTGRES_DB: supertokens
+     ports:
+       - "5432:5432"
+#     restart: unless-stopped
+     volumes:
+       - postgres-data:/var/lib/postgresql/data
+     healthcheck:
+       test: [ 'CMD', 'pg_isready', '-U', 'supertokens_user', '-d', 'supertokens' ]
+       interval: 5s
+       timeout: 5s
+       retries: 5
+   supertokens:
+     image: registry.supertokens.io/supertokens/supertokens-postgresql:7.0
+     depends_on:
+       postgres:
+         condition: service_healthy
+     ports:
+       - "3567:3567"
+     environment:
+       POSTGRESQL_CONNECTION_URI: "postgresql://postgres:postgres@postgres:5432/supertokens"
+#     restart: unless-stopped
+     healthcheck:
+       test: >
+         bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+       interval: 10s
+       timeout: 5s
+       retries: 5
 volumes:
   mongo-data:
+  postgres-data:
