@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
    db:
      image: mongo:7.0.5
@@ -27,10 +25,17 @@ services:
        - postgres
        - supertokens
      build: .
+     develop:
+       watch:
+         - action: sync
+           path: ./
+           target: /usr/src/app
+         - action: rebuild
+           path: package.json
+         - action: rebuild
+           path: yarn.lock
      ports:
        - "3000:3000"
-     volumes:
-       - .:/app
 
    postgres:
      image: 'postgres:16.2'
