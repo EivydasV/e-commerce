@@ -20,10 +20,14 @@ import { DocIdScalar } from '../../db/scalars/doc-id.scalar';
 import { DocId } from '../../db/types/doc-id.type';
 import { UpdateProductInput } from '../inputs/update-product.input';
 import { Category } from '../../categories/schemas/category.schema';
+import { UserDataLoader } from '../../graphql/data-loaders/user.data-loader';
 
 @Resolver(() => Product)
 export class ProductResolver {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly userDataLoader: UserDataLoader,
+  ) {}
 
   @Query(() => Product, { nullable: true })
   async findProductBySlug(@Args('slug') slug: string) {
@@ -86,12 +90,11 @@ export class ProductResolver {
 
   @ResolveField(() => [Category])
   async categories(@Parent() product: ProductDocument): Promise<Category[]> {
-    console.log('categories');
     return this.productService.findCategories(product);
   }
 
   @ResolveField(() => User)
   async seller(@Parent() product: ProductDocument): Promise<User> {
-    return this.productService.findSeller(product);
+    return this.userDataLoader.load(product.seller);
   }
 }

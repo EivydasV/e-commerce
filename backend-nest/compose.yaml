@@ -3,37 +3,26 @@ services:
      image: mongo:7.0.5
      ports:
        - "27017:27017"
+       - "9229:9229"
      volumes:
        - mongo-data:/data/db
-     healthcheck:
-       test:
-         [
-           "CMD",
-           "mongo",
-           "--quiet",
-           "127.0.0.1/test",
-           "--eval",
-           "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
-         ]
-       interval: 10s
-       timeout: 10s
-       retries: 5
-       start_period: 40s
    nest:
      depends_on:
        - db
        - postgres
        - supertokens
      build: .
-     develop:
-       watch:
-         - action: sync
-           path: ./
-           target: /usr/src/app
-         - action: rebuild
-           path: package.json
-         - action: rebuild
-           path: yarn.lock
+     volumes:
+       - .:/usr/src/app
+#     develop:
+#       watch:
+#         - action: sync
+#           path: ./src
+#           target: /usr/src/app/src
+#         - action: rebuild
+#           path: package.json
+#         - action: rebuild
+#           path: yarn.lock
      ports:
        - "3000:3000"
 

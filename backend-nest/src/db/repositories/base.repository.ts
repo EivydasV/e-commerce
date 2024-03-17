@@ -43,7 +43,7 @@ export class BaseRepository<Doc extends Document, Entity>
     return this.entity.findByIdAndDelete(id);
   }
   findAll(filter?: FilterQuery<Doc>): MongooseQuery<Doc[]> {
-    return this.entity.find(filter || {});
+    return this.entity.find(filter || {}, {}, {});
   }
   findOne(filter: FilterQuery<Entity> | undefined): MongooseQuery<Doc> | null {
     return this.entity.findOne(filter);

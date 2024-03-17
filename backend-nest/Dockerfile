@@ -8,19 +8,19 @@ USER node
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package*.json yarn*.lock ./
-
-RUN yarn install
-
-COPY --chown=node:node . .
-
 USER root
 
 RUN npm i -g @nestjs/cli
 
 USER node
 
+COPY --chown=node:node package*.json yarn*.lock ./
+
+RUN yarn install
+
+COPY --chown=node:node . .
+
 EXPOSE 3000
 
-CMD ["yarn", "start:dev"]
+CMD ["yarn", "start:debug"]
 
