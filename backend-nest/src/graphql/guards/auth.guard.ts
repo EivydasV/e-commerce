@@ -39,7 +39,7 @@ export class AuthGuard implements CanActivate {
         checkDatabase: true,
       });
 
-      userId = session !== undefined ? session.getUserId() : undefined;
+      userId = session !== undefined ? session?.getUserId() : undefined;
     } catch (err) {
       if (Session.Error.isErrorFromSuperTokens(err)) {
         throw new UnauthorizedException();

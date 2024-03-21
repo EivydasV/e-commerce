@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 
 USER root
 
-RUN npm i -g @nestjs/cli
+RUN npm i -g @nestjs/cli madge
 
 USER node
 

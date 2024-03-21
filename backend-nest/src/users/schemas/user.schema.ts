@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { HideField, ObjectType } from '@nestjs/graphql';
+import { HydratedDocument, Types } from 'mongoose';
+import { Field, HideField, ObjectType } from '@nestjs/graphql';
 import { TimestampsSchema } from '../../db/schema/timestamps.schema';
 import { OffsetPaginated } from '../../graphql/paginations/offset/paginated.offset';
+import { Cart } from '../../cart/schemas/cart.schema';
 
 export type UserDocument = HydratedDocument<User>;
 @Schema({
@@ -30,6 +31,10 @@ export class User extends TimestampsSchema {
   @Prop({ required: false })
   @HideField()
   forgotPasswordTokenExpiresAt?: Date;
+
+  @Prop([{ type: Cart, maxlength: 20 }])
+  @Field(() => [Cart])
+  cart?: Types.DocumentArray<Cart>;
 }
 
 @ObjectType()

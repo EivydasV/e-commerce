@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Cart {
+  _id: DocId
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
 type Category {
   _id: DocId
   createdAt: DateTime
@@ -174,6 +180,7 @@ input UpdateUserInput {
 
 type User {
   _id: DocId
+  cart: [Cart!]
   createdAt: DateTime
   email: String!
   firstName: String!

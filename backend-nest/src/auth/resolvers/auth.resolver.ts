@@ -1,10 +1,10 @@
-import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { LoginInput } from '../inputs/login.input';
-import { Public } from '../decorators/public.decorator';
-import { AuthService } from '../auth.service';
-import { GraphQLContext } from '../../graphql/types/graphql-context.type';
-import { CurrentUser } from '../../graphql/decorators/current-user.decorator';
-import { User } from '../../users/schemas/user.schema';
+import {Args, Context, Mutation, Query, Resolver} from '@nestjs/graphql';
+import {LoginInput} from '../inputs/login.input';
+import {Public} from '../decorators/public.decorator';
+import {AuthService} from '../auth.service';
+import {GraphQLContext} from '../../graphql/types/graphql-context.type';
+import {CurrentUser} from '../../graphql/decorators/current-user.decorator';
+import {User} from '../../users/schemas/user.schema';
 
 @Resolver()
 export class AuthResolver {

@@ -18,6 +18,7 @@ import { ProductsModule } from './products/products.module';
 import { DocIdScalar } from './db/scalars/doc-id.scalar';
 import { HealthModule } from './health/health.module';
 import { CategoryModule } from './categories/categoryModule';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -27,27 +28,7 @@ import { CategoryModule } from './categories/categoryModule';
     UsersModule,
     DbModule,
     SecurityModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      resolvers: { DocId: DocIdScalar },
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      buildSchemaOptions: {
-        numberScalarMode: 'integer',
-      },
-      playground: {
-        settings: {
-          'request.credentials': 'include', // Otherwise cookies won't be sent
-        },
-      },
-      context: ({ req, res }: { req: SessionRequest; res: Response }) => {
-        return {
-          session: req.session,
-          req,
-          res,
-        };
-      },
-    }),
+
     SupertokenModule.forRootAsync({
       inject: [supertokenConfig.KEY],
       imports: [ConfigModule.forFeature(supertokenConfig)],
@@ -70,6 +51,7 @@ import { CategoryModule } from './categories/categoryModule';
     ProductsModule,
     HealthModule,
     CategoryModule,
+    CartModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
