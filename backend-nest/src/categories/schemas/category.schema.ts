@@ -13,7 +13,7 @@ export class Category extends TimestampsSchema {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ type: Types.ObjectId, ref: Category.name, default: null })
+  @Prop({ type: Types.ObjectId, ref: 'Category', default: null })
   @Field(() => Category, { nullable: true })
   parent?: DocId;
 }

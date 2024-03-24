@@ -5,6 +5,8 @@
 type Cart {
   _id: DocId
   createdAt: DateTime
+  product: Product!
+  quantity: Int!
   updatedAt: DateTime
 }
 

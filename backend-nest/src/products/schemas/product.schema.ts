@@ -37,7 +37,7 @@ export class Product extends TimestampsSchema {
   variants?: Types.DocumentArray<ProductVariant>;
 
   @Field(() => User)
-  @Prop({ required: true, type: Types.ObjectId, ref: User.name })
+  @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
   seller: DocId;
 
   @Field(() => [Category])
