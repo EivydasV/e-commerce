@@ -1,7 +1,7 @@
-import { EdgeType } from './edge.type';
+import { OffsetEdgeType } from './offset-edge.type';
 
-export interface PaginatedType<T> {
-  edges: EdgeType<T>[];
+export interface OffsetPaginatedType<T> {
+  edges: OffsetEdgeType<T>[];
 
   totalDocs: number;
 

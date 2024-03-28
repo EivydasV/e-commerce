@@ -6,6 +6,7 @@ type Cart {
   _id: DocId
   createdAt: DateTime
   product: Product!
+  productVariant: ProductVariant!
   quantity: Int!
   updatedAt: DateTime
 }
@@ -16,6 +17,10 @@ type Category {
   name: String!
   parent: Category
   updatedAt: DateTime
+}
+
+input CreateCartInput {
+  quantity: Int!
 }
 
 input CreateCategoryInput {
@@ -59,6 +64,7 @@ input LoginInput {
 }
 
 type Mutation {
+  addToCart(createCartInput: CreateCartInput!, productId: [DocId!]!, productVariantId: [DocId!]!): [Cart!]!
   createCategory(createCategoryInput: CreateCategoryInput!, parentId: DocId): Category!
   createProduct(categoryIds: [DocId!]!, createProductInput: CreateProductInput!): Product!
   createProductVariant(productId: DocId!, productVariantInput: [CreateProductVariantInput!]!): Product!

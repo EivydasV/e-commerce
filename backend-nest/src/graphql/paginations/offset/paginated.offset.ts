@@ -1,16 +1,18 @@
 import { Type } from '@nestjs/common';
-import { PaginatedType } from '../../../paginations/offset/types/paginated.type';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { OffsetPaginatedType } from '../../../db/types/offset-paginated.type';
 
-export function OffsetPaginated<T>(classRef: Type<T>): Type<PaginatedType<T>> {
+export function OffsetPaginated<T>(
+  classRef: Type<T>,
+): Type<OffsetPaginatedType<T>> {
   @ObjectType(`offset${classRef.name}Edge`)
-  abstract class OffsetEdgeType {
+  class OffsetEdgeType {
     @Field(() => classRef)
     node!: T;
   }
 
   @ObjectType({ isAbstract: true })
-  abstract class OffsetPaginatedType implements PaginatedType<T> {
+  class OffsetPaginated implements OffsetPaginatedType<T> {
     @Field(() => [OffsetEdgeType])
     edges: OffsetEdgeType[];
 
@@ -36,5 +38,5 @@ export function OffsetPaginated<T>(classRef: Type<T>): Type<PaginatedType<T>> {
     totalPages: number;
   }
 
-  return OffsetPaginatedType as Type<PaginatedType<T>>;
+  return OffsetPaginated as Type<OffsetPaginatedType<T>>;
 }

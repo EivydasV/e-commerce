@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import dbConfig from './configs/db.config';
-import { PaginationsModule } from '../paginations/paginations.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -14,7 +13,6 @@ import { PaginationsModule } from '../paginations/paginations.module';
         };
       },
     }),
-    PaginationsModule,
   ],
 })
 export class DbModule {}

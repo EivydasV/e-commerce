@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OffsetPaginationInput } from 'src/graphql/inputs/offset-pagination.input';
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { BaseRepository } from './base.repository';
-import { PaginatedType } from '../../paginations/offset/types/paginated.type';
+import { OffsetPaginatedType } from '../types/offset-paginated.type';
 
 @Injectable()
 export class PageableRepository<Entity> extends BaseRepository<Entity> {
@@ -13,7 +13,7 @@ export class PageableRepository<Entity> extends BaseRepository<Entity> {
   async offsetPaginate(
     offsetPaginationInput: OffsetPaginationInput,
     filters?: FilterQuery<HydratedDocument<Entity>>,
-  ): Promise<PaginatedType<Entity>> {
+  ): Promise<OffsetPaginatedType<Entity>> {
     const { perPage, skip } = offsetPaginationInput;
 
     const [docs, totalDocs] = await Promise.all([
@@ -30,7 +30,7 @@ export class PageableRepository<Entity> extends BaseRepository<Entity> {
     pageInfo: OffsetPaginationInput,
     docs: Entity[],
     totalDocs: number,
-  ): PaginatedType<Entity> {
+  ): OffsetPaginatedType<Entity> {
     const totalPages = Math.ceil(totalDocs / pageInfo.perPage);
 
     return {
