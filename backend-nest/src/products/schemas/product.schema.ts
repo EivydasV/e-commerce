@@ -41,9 +41,7 @@ export class Product extends TimestampsSchema {
   seller: DocId;
 
   @Field(() => [Category])
-  @Prop([
-    { type: Types.ObjectId, ref: Category.name, minlength: 1, maxlength: 5 },
-  ])
+  @Prop([{ type: Types.ObjectId, ref: 'Category', minlength: 1, maxlength: 5 }])
   categories: DocId[];
 }
 

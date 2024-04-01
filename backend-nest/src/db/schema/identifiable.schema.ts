@@ -5,5 +5,5 @@ import { DocIdScalar as DocIdScalar } from '../scalars/doc-id.scalar';
 @ObjectType()
 export class IdentifiableSchema {
   @Field(() => DocIdScalar)
-  _id?: DocId;
+  _id: DocId;
 }

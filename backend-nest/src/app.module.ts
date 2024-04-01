@@ -13,6 +13,7 @@ import { ProductsModule } from './products/products.module';
 import { HealthModule } from './health/health.module';
 import { CategoryModule } from './categories/categoryModule';
 import { CartModule } from './cart/cart.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { CartModule } from './cart/cart.module';
     UsersModule,
     DbModule,
     SecurityModule,
-
+    EventEmitterModule.forRoot(),
     SupertokenModule.forRootAsync({
       inject: [supertokenConfig.KEY],
       imports: [ConfigModule.forFeature(supertokenConfig)],

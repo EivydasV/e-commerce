@@ -3,7 +3,6 @@ services:
      image: mongo:7.0.5
      ports:
        - "27017:27017"
-       - "9229:9229"
      volumes:
        - mongo-data:/data/db
    nest:
@@ -14,15 +13,6 @@ services:
      build: .
      volumes:
        - .:/usr/src/app
-#     develop:
-#       watch:
-#         - action: sync
-#           path: ./src
-#           target: /usr/src/app/src
-#         - action: rebuild
-#           path: package.json
-#         - action: rebuild
-#           path: yarn.lock
      ports:
        - "3000:3000"
 
@@ -58,6 +48,26 @@ services:
        interval: 10s
        timeout: 5s
        retries: 5
+   elasticvue:
+     image: cars10/elasticvue:1.0.4
+     ports:
+       - "1000:1000"
+   elasticsearch:
+     image: elasticsearch:8.13.0
+     environment:
+       - discovery.type=single-node
+       - bootstrap.memory_lock=true
+       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+       - "xpack.security.enabled=false"
+     ulimits:
+       memlock:
+         soft: -1
+         hard: -1
+     volumes:
+       - esproducts:/usr/share/elasticsearch/data
+     ports:
+       - "9200:9200"
 volumes:
   mongo-data:
   postgres-data:
+  esproducts:

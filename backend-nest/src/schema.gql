@@ -3,7 +3,8 @@
 # ------------------------------------------------------
 
 type Cart {
-  _id: DocId
+  _id: DocId!
+  cart: [Cart!]!
   createdAt: DateTime
   product: Product!
   productVariant: ProductVariant!
@@ -12,7 +13,7 @@ type Cart {
 }
 
 type Category {
-  _id: DocId
+  _id: DocId!
   createdAt: DateTime
   name: String!
   parent: Category
@@ -64,7 +65,7 @@ input LoginInput {
 }
 
 type Mutation {
-  addToCart(createCartInput: CreateCartInput!, productId: [DocId!]!, productVariantId: [DocId!]!): [Cart!]!
+  addToCart(createCartInput: CreateCartInput!, productId: [DocId!]!, productVariantId: [DocId!]!): Boolean!
   createCategory(createCategoryInput: CreateCategoryInput!, parentId: DocId): Category!
   createProduct(categoryIds: [DocId!]!, createProductInput: CreateProductInput!): Product!
   createProductVariant(productId: DocId!, productVariantInput: [CreateProductVariantInput!]!): Product!
@@ -119,7 +120,7 @@ input PricingInput {
 }
 
 type Product {
-  _id: DocId
+  _id: DocId!
   categories: [Category!]!
   createdAt: DateTime
   description: String!
@@ -148,7 +149,7 @@ input ProductDimensionsInput {
 }
 
 type ProductVariant {
-  _id: DocId
+  _id: DocId!
   color: String!
   createdAt: DateTime
   images: [String!]
@@ -187,7 +188,7 @@ input UpdateUserInput {
 }
 
 type User {
-  _id: DocId
+  _id: DocId!
   cart: [Cart!]
   createdAt: DateTime
   email: String!

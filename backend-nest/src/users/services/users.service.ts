@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UserRepository } from './repositories/user.repository';
-import { CreateUserInput } from './inputs/create-user.input';
-import { BaseHashing } from '../security/hashings/base.hashing';
-import { UpdateUserInput } from './inputs/update-user.input';
-import { Encryption } from '../security/encryptions/encryption.encriptions';
-import { ForgotPasswordInput } from './inputs/forgot-password.input';
-import { ResetPasswordInput } from './inputs/reset-password.input';
-import { OffsetPaginationInput } from '../graphql/inputs/offset-pagination.input';
-import { DocId } from '../db/types/doc-id.type';
+import { UserRepository } from '../repositories/user.repository';
+import { CreateUserInput } from '../inputs/create-user.input';
+import { BaseHashing } from '../../security/hashings/base.hashing';
+import { UpdateUserInput } from '../inputs/update-user.input';
+import { Encryption } from '../../security/encryptions/encryption.encriptions';
+import { ForgotPasswordInput } from '../inputs/forgot-password.input';
+import { ResetPasswordInput } from '../inputs/reset-password.input';
+import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.input';
+import { DocId } from '../../db/types/doc-id.type';
 
 @Injectable()
 export class UsersService {

@@ -12,10 +12,15 @@ import {
   ProductVariant,
   ProductVariantSchema,
 } from './schemas/product-variant.schema';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { ProductSearch } from './search/product.search';
 
 @Module({
   imports: [
     CategoryModule,
+    ElasticsearchModule.register({
+      node: 'http://elasticsearch:9200',
+    }),
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     MongooseModule.forFeature([
       { name: ProductVariant.name, schema: ProductVariantSchema },
@@ -28,6 +33,7 @@ import {
     ProductVariantResolver,
     ProductVariantService,
     ProductVariantRepository,
+    ProductSearch,
   ],
   exports: [ProductRepository, ProductVariantRepository],
 })

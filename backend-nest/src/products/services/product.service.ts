@@ -9,12 +9,14 @@ import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.in
 import { UpdateProductInput } from '../inputs/update-product.input';
 import { CategoryRepository } from '../../categories/repositories/category.repository';
 import { Category } from '../../categories/schemas/category.schema';
+import { ProductSearch } from '../search/product.search';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly categoryRepository: CategoryRepository,
+    private readonly productSearch: ProductSearch,
   ) {}
 
   async create(
