@@ -14,6 +14,7 @@ import {
 } from './schemas/product-variant.schema';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ProductSearch } from './search/product.search';
+import { ProductsIndexCommand } from './commands/products-index.command';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ProductSearch } from './search/product.search';
     ProductVariantService,
     ProductVariantRepository,
     ProductSearch,
+    ProductsIndexCommand,
   ],
   exports: [ProductRepository, ProductVariantRepository],
 })

@@ -11,6 +11,7 @@ services:
        - postgres
        - supertokens
      build: .
+     command: chmod +x bin/commander
      volumes:
        - .:/usr/src/app
      ports:
