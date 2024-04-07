@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CartRepository } from '../repositories/cart.repository';
 import { CreateCartInput } from '../inputs/create-cart.input';
 import { DocId } from '../../db/types/doc-id.type';
 import { UserDocument } from '../../users/schemas/user.schema';
@@ -11,10 +10,7 @@ import { ProductRepository } from '../../products/repositories/product.repositor
 
 @Injectable()
 export class CartService {
-  constructor(
-    private readonly cartRepository: CartRepository,
-    private readonly productRepository: ProductRepository,
-  ) {}
+  constructor(private readonly productRepository: ProductRepository) {}
   async addToCart(
     createCartInput: CreateCartInput,
     productId: DocId,

@@ -14,6 +14,8 @@ import { HealthModule } from './health/health.module';
 import { CategoryModule } from './categories/categoryModule';
 import { CartModule } from './cart/cart.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ElasticsearchModule } from './elasticsearch/elasticsearch.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     HealthModule,
     CategoryModule,
     CartModule,
+    ElasticsearchModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],

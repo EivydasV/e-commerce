@@ -7,13 +7,16 @@ import {
   UpdateQuery,
 } from 'mongoose';
 import { OmitBaseType } from '../types/omit-base.type';
-import { Injectable } from '@nestjs/common';
 import { MongooseQuery } from '../types/query.type';
 import { DocId } from '../types/doc-id.type';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
-@Injectable()
 export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
-  constructor(private readonly entity: Model<Entity>) {}
+  constructor(
+    private readonly entity: Model<Entity>,
+    private readonly baseName: string,
+    private readonly baseEventEmitter: EventEmitter2,
+  ) {}
 
   async create(payload: OmitBaseType<Entity>): Promise<Entity> {
     return this.entity.create(payload);
@@ -41,5 +44,9 @@ export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
     filter: FilterQuery<Entity> | undefined,
   ): MongooseQuery<HydratedDocument<Entity>> | null {
     return this.entity.findOne(filter);
+  }
+
+  estimateCunt(): MongooseQuery<number> {
+    return this.entity.estimatedDocumentCount();
   }
 }

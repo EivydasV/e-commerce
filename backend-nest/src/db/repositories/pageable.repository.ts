@@ -3,11 +3,16 @@ import { OffsetPaginationInput } from 'src/graphql/inputs/offset-pagination.inpu
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { BaseRepository } from './base.repository';
 import { OffsetPaginatedType } from '../types/offset-paginated.type';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class PageableRepository<Entity> extends BaseRepository<Entity> {
-  constructor(private readonly model: Model<Entity>) {
-    super(model);
+  constructor(
+    private readonly model: Model<Entity>,
+    private readonly name: string,
+    private readonly pageableEventEmitter: EventEmitter2,
+  ) {
+    super(model, name, pageableEventEmitter);
   }
 
   async offsetPaginate(

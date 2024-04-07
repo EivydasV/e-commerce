@@ -11,7 +11,7 @@ export class CategoryRepository extends PageableRepository<Category> {
   constructor(
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
   ) {
-    super(categoryModel);
+    super(categoryModel, 'category');
   }
 
   findByParent(parentId: DocId): MongooseQuery<CategoryDocument> | null {

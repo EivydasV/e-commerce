@@ -1,8 +1,5 @@
-import { DocId } from '../../db/types/doc-id.type';
-
 export interface ProductIndexType {
   title: string;
-  _id: DocId;
   description: string;
   categories: Category[];
   manufacturer: string;

@@ -9,7 +9,7 @@ import { PageableRepository } from '../../db/repositories/pageable.repository';
 @Injectable()
 export class ProductRepository extends PageableRepository<Product> {
   constructor(@InjectModel(Product.name) private productModel: Model<Product>) {
-    super(productModel);
+    super(productModel, 'product');
   }
 
   findByTitle(title: string): MongooseQuery<ProductDocument> | null {

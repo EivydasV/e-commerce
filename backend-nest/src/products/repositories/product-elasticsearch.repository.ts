@@ -1,31 +1,23 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BaseRepository } from '../../elasticsearch/repositories/base.repository';
+import { Product } from '../schemas/product.schema';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { ProductIndexType } from '../types/product-index.type';
 
 @Injectable()
-export class ProductSearch implements OnModuleInit {
-  private static index = 'products';
-  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+export class ProductElasticsearchRepository
+  extends BaseRepository<Product>
+  implements OnModuleInit
+{
+  static readonly INDEX = 'products';
+
+  constructor(private readonly elasticSearchService: ElasticsearchService) {
+    super(elasticSearchService, ProductElasticsearchRepository.INDEX);
+  }
 
   async onModuleInit() {
-    const getMapping = await this.elasticsearchService.indices.getMapping();
-    if (!(ProductSearch.index in getMapping)) {
-      await this.createMapping();
-    }
-  }
-
-  async index(product: ProductIndexType) {
-    return this.elasticsearchService.index({
-      index: ProductSearch.index,
-      document: product,
-      refresh: true,
-    });
-  }
-
-  private async createMapping() {
-    return this.elasticsearchService.indices.create({
-      index: ProductSearch.index,
-      mappings: {
+    const currentMapping = await this.geCurrentMapping();
+    if (!currentMapping[ProductElasticsearchRepository.INDEX]) {
+      await this.createMapping({
         properties: {
           title: { type: 'search_as_you_type' },
           description: { type: 'text' },
@@ -55,7 +47,7 @@ export class ProductSearch implements OnModuleInit {
           createdAt: { type: 'date' },
           updatedAt: { type: 'date' },
         },
-      },
-    });
+      });
+    }
   }
 }

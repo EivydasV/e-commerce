@@ -11,7 +11,6 @@ services:
        - postgres
        - supertokens
      build: .
-     command: chmod +x bin/commander
      volumes:
        - .:/usr/src/app
      ports:
@@ -52,7 +51,7 @@ services:
    elasticvue:
      image: cars10/elasticvue:1.0.4
      ports:
-       - "1000:1000"
+       - "1555:1555"
    elasticsearch:
      image: elasticsearch:8.13.0
      environment:

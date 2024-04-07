@@ -7,14 +7,14 @@ import { Product, ProductSchema } from './schemas/product.schema';
 import { ProductVariantResolver } from './resolvers/product-variant.resolver';
 import { ProductVariantService } from './services/product-variant.service';
 import { CategoryModule } from '../categories/categoryModule';
-import { ProductVariantRepository } from './repositories/product-variant.repository';
 import {
   ProductVariant,
   ProductVariantSchema,
 } from './schemas/product-variant.schema';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { ProductSearch } from './search/product.search';
+import { ProductElasticsearch } from './elasticsearch/product.elasticsearch';
 import { ProductsIndexCommand } from './commands/products-index.command';
+import { ProductElasticsearchRepository } from './repositories/product-elasticsearch.repository';
 
 @Module({
   imports: [
@@ -33,10 +33,10 @@ import { ProductsIndexCommand } from './commands/products-index.command';
     ProductRepository,
     ProductVariantResolver,
     ProductVariantService,
-    ProductVariantRepository,
-    ProductSearch,
+    ProductElasticsearch,
     ProductsIndexCommand,
+    ProductElasticsearchRepository,
   ],
-  exports: [ProductRepository, ProductVariantRepository],
+  exports: [ProductRepository],
 })
 export class ProductsModule {}
