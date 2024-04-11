@@ -1,26 +1,31 @@
-export interface ProductIndexType {
-  title: string;
-  description: string;
-  categories: Category[];
-  manufacturer: string;
-  isPublished?: boolean;
-  variants?: Variant[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { z } from 'zod';
+import { Types } from 'mongoose';
 
-interface Category {
-  name: string;
-}
+export const productIndexValidation = z.object({
+  title: z.string(),
+  _id: z.instanceof(Types.ObjectId),
+  description: z.string(),
+  categories: z.array(
+    z.object({
+      name: z.string(),
+      // parent: z.nullable(z.string()),
+    }),
+  ),
+  manufacturer: z.string(),
+  isPublished: z.boolean(),
+  variants: z.array(
+    z.object({
+      pricing: z.object({
+        cost: z.number(),
+        currency: z.string(),
+        salePrice: z.number(),
+      }),
+      quantity: z.number(),
+      color: z.string(),
+    }),
+  ),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
 
-interface Variant {
-  pricing: Pricing;
-  quantity: number;
-  color: string;
-}
-
-interface Pricing {
-  cost: number;
-  currency: string;
-  salePrice: number;
-}
+export type ProductIndex = z.infer<typeof productIndexValidation>;

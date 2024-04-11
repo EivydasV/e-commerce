@@ -124,6 +124,7 @@ type Product {
   categories: [Category!]!
   createdAt: DateTime
   description: String!
+  entityName: String!
   isPublished: Boolean
   manufacturer: String!
   seller: User!

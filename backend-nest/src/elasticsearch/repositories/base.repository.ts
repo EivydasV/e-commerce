@@ -1,24 +1,24 @@
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { IdentifiableSchema } from '../../db/schema/identifiable.schema';
 import {
   IndicesCreateResponse,
   IndicesGetMappingResponse,
   MappingTypeMapping,
   WriteResponseBase,
 } from '@elastic/elasticsearch/lib/api/types';
+import { productIndexValidation } from '../../products/validations/product-elasticsearch.validation';
 
-export class BaseRepository<T extends IdentifiableSchema> {
+export class BaseRepository<T> {
   constructor(
     private readonly elasticSearch: ElasticsearchService,
     private readonly indexName: string,
   ) {}
 
   async index(data: T): Promise<WriteResponseBase> {
-    const { restProduct, id } = this.convertObjectToIndex(data);
+    const parsedProduct = productIndexValidation.parse(data);
     return this.elasticSearch.index({
-      id: id,
+      id: parsedProduct.id,
       index: this.indexName,
-      document: restProduct,
+      document: parsedProduct,
     });
   }
 

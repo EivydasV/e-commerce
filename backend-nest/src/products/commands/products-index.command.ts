@@ -1,12 +1,12 @@
 import { Command, CommandRunner } from 'nest-commander';
 import { ProductRepository } from '../repositories/product.repository';
-import { ProductElasticsearch } from '../elasticsearch/product.elasticsearch';
 import cliProgress from 'cli-progress';
 import {
   Category,
   CategoryDocument,
 } from '../../categories/schemas/category.schema';
 import { Logger } from '@nestjs/common';
+import { ProductElasticsearchRepository } from '../repositories/product-elasticsearch.repository';
 
 @Command({
   name: 'products:index',
@@ -15,7 +15,7 @@ export class ProductsIndexCommand extends CommandRunner {
   private readonly logger = new Logger(ProductsIndexCommand.name);
   constructor(
     private readonly productsRepository: ProductRepository,
-    private readonly productsElasticsearch: ProductElasticsearch,
+    private readonly productsElasticsearch: ProductElasticsearchRepository,
   ) {
     super();
   }
@@ -35,16 +35,17 @@ export class ProductsIndexCommand extends CommandRunner {
         path: 'categories',
         model: Category.name,
       })
-      .cursor();
+      .cursor({ lean: true });
+
     await products.eachAsync(
       async function (products) {
-        const res = await self.productsElasticsearch.indexBulk(products);
+        const res = await self.productsElasticsearch.bulkIndex(products);
         if (res.errors) {
           self.logger.error(res.items);
         }
         progressBar.increment(products.length);
       },
-      { batchSize: 1 },
+      { batchSize: 100 },
     );
     progressBar.stop();
   }

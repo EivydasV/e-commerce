@@ -5,13 +5,14 @@ import { Category, CategoryDocument } from '../schemas/category.schema';
 import { DocId } from '../../db/types/doc-id.type';
 import { MongooseQuery } from '../../db/types/query.type';
 import { PageableRepository } from '../../db/repositories/pageable.repository';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CategoryRepository extends PageableRepository<Category> {
   constructor(
     @InjectModel(Category.name) private readonly categoryModel: Model<Category>,
   ) {
-    super(categoryModel, 'category');
+    super(categoryModel);
   }
 
   findByParent(parentId: DocId): MongooseQuery<CategoryDocument> | null {

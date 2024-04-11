@@ -9,7 +9,6 @@ import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.in
 import { UpdateProductInput } from '../inputs/update-product.input';
 import { CategoryRepository } from '../../categories/repositories/category.repository';
 import { Category } from '../../categories/schemas/category.schema';
-import { ProductElasticsearch } from '../elasticsearch/product.elasticsearch';
 
 @Injectable()
 export class ProductService {

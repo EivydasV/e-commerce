@@ -1,11 +1,11 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseRepository } from '../../elasticsearch/repositories/base.repository';
-import { Product } from '../schemas/product.schema';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { ProductIndex } from '../validations/product-elasticsearch.validation';
 
 @Injectable()
 export class ProductElasticsearchRepository
-  extends BaseRepository<Product>
+  extends BaseRepository<ProductIndex>
   implements OnModuleInit
 {
   static readonly INDEX = 'products';

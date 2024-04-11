@@ -10,16 +10,24 @@ import { OmitBaseType } from '../types/omit-base.type';
 import { MongooseQuery } from '../types/query.type';
 import { DocId } from '../types/doc-id.type';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Event } from '../../events/types/event.type';
 
 export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
   constructor(
     private readonly entity: Model<Entity>,
-    private readonly baseName: string,
-    private readonly baseEventEmitter: EventEmitter2,
+    private readonly event?: Event,
+    private readonly eventEmitter?: EventEmitter2,
   ) {}
 
   async create(payload: OmitBaseType<Entity>): Promise<Entity> {
-    return this.entity.create(payload);
+    this.emitEvent(this.event?.preCreated, payload);
+    const create = await this.entity.create({
+      ...payload,
+      entityName: this.entity.collection.collectionName,
+    });
+    this.emitEvent(this.event?.postCreated, create);
+
+    return create;
   }
 
   findById(DocId: DocId): MongooseQuery<HydratedDocument<Entity>> | null {
@@ -48,5 +56,15 @@ export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
 
   estimateCunt(): MongooseQuery<number> {
     return this.entity.estimatedDocumentCount();
+  }
+
+  private emitEvent(event?: string, object?: unknown): boolean | void {
+    if (
+      this.eventEmitter !== undefined &&
+      this.event !== undefined &&
+      event !== undefined
+    ) {
+      this.eventEmitter.emit(event, object);
+    }
   }
 }

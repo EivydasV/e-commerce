@@ -12,9 +12,9 @@ import {
   ProductVariantSchema,
 } from './schemas/product-variant.schema';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { ProductElasticsearch } from './elasticsearch/product.elasticsearch';
 import { ProductsIndexCommand } from './commands/products-index.command';
 import { ProductElasticsearchRepository } from './repositories/product-elasticsearch.repository';
+import { PostProductListener } from './listeners/post-product.listener';
 
 @Module({
   imports: [
@@ -33,9 +33,9 @@ import { ProductElasticsearchRepository } from './repositories/product-elasticse
     ProductRepository,
     ProductVariantResolver,
     ProductVariantService,
-    ProductElasticsearch,
     ProductsIndexCommand,
     ProductElasticsearchRepository,
+    PostProductListener,
   ],
   exports: [ProductRepository],
 })

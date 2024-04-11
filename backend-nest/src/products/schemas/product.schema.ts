@@ -7,13 +7,20 @@ import { User } from '../../users/schemas/user.schema';
 import { ProductVariant } from './product-variant.schema';
 import { DocId } from '../../db/types/doc-id.type';
 import { Category } from '../../categories/schemas/category.schema';
+import { SchemaName } from '../../db/types/schema-name.type';
 
 export type ProductDocument = HydratedDocument<Product>;
+
+export const ProductEntityName = 'Product';
 @Schema({
   timestamps: true,
+  collection: ProductEntityName,
 })
 @ObjectType()
-export class Product extends TimestampsSchema {
+export class Product extends TimestampsSchema implements SchemaName {
+  @Prop({ required: true, maxlength: 255, immutable: true })
+  entityName: string;
+
   @Prop({ required: true, maxlength: 255, unique: true })
   title: string;
 
@@ -30,7 +37,7 @@ export class Product extends TimestampsSchema {
   thumbnail?: string;
 
   @Prop({ default: false })
-  isPublished?: boolean;
+  isPublished: boolean;
 
   @Prop([{ type: ProductVariant, maxlength: 5 }])
   @Field(() => [ProductVariant])

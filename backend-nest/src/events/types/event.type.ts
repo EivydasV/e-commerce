@@ -1,5 +1,8 @@
 export type Event = {
-  created: string;
-  updated: string;
-  deleted: string;
+  preCreated: string;
+  postCreated: string;
+  preUpdated: string;
+  postUpdated: string;
+  preDeleted: string;
+  postDeleted: string;
 };

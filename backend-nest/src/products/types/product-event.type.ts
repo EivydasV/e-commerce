@@ -1,7 +1,10 @@
 import { Event } from '../../events/types/event.type';
 
-const productEventType: Event = {
-  created: 'product.created',
-  updated: 'product.updated',
-  deleted: 'product.deleted',
+export const productEventType: Event = {
+  preCreated: 'product.preCreated',
+  postCreated: 'product.postCreated',
+  preUpdated: 'product.preUpdated',
+  postUpdated: 'product.postUpdated',
+  preDeleted: 'product.preDeleted',
+  postDeleted: 'product.postDeleted',
 };

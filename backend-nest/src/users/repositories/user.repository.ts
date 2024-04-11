@@ -4,14 +4,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongooseQuery } from '../../db/types/query.type';
 import { PageableRepository } from '../../db/repositories/pageable.repository';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UserRepository extends PageableRepository<User> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private readonly eventEmitter: EventEmitter,
-  ) {
-    super(userModel, 'user', eventEmitter);
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {
+    super(userModel);
   }
 
   findByEmail(email: string): MongooseQuery<UserDocument | null> {
