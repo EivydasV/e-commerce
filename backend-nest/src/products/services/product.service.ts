@@ -8,14 +8,16 @@ import { DocId } from '../../db/types/doc-id.type';
 import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.input';
 import { UpdateProductInput } from '../inputs/update-product.input';
 import { CategoryRepository } from '../../categories/repositories/category.repository';
-import { Category } from '../../categories/schemas/category.schema';
+import { UserDataLoader } from '../../graphql/data-loaders/user.data-loader';
+import { CategoryDataLoader } from '../../graphql/data-loaders/category.data-loader';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly categoryRepository: CategoryRepository,
-    // private readonly productSearch: ProductElasticsearch,
+    private readonly userDataLoader: UserDataLoader,
+    private readonly categoryDataLoader: CategoryDataLoader,
   ) {}
 
   async create(
@@ -111,14 +113,11 @@ export class ProductService {
     );
   }
 
-  async findCategories(product: ProductDocument) {
-    const populatedProduct = await product.populate<{ categories: Category[] }>(
-      {
-        path: 'categories',
-        model: Category.name,
-      },
-    );
+  async loadByIds(ids: DocId[]) {
+    return this.categoryDataLoader.loadMany(ids);
+  }
 
-    return populatedProduct.categories;
+  async loadUserById(id: DocId) {
+    return this.userDataLoader.load(id);
   }
 }

@@ -7,16 +7,21 @@ import { CreateCartInput } from '../inputs/create-cart.input';
 import { DocId } from '../../db/types/doc-id.type';
 import { UserDocument } from '../../users/schemas/user.schema';
 import { ProductRepository } from '../../products/repositories/product.repository';
+import { ProductDataLoader } from '../../graphql/data-loaders/product.data-loader';
 
 @Injectable()
 export class CartService {
-  constructor(private readonly productRepository: ProductRepository) {}
+  constructor(
+    private readonly productRepository: ProductRepository,
+    private readonly productDataLoader: ProductDataLoader,
+  ) {}
+
   async addToCart(
     createCartInput: CreateCartInput,
     productId: DocId,
     productVariantId: DocId,
     user: UserDocument,
-  ): Promise<any> {
+  ) {
     const product = await this.productRepository.findById(productId);
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -55,8 +60,8 @@ export class CartService {
     return user.cart;
   }
 
-  async getProductById(productId: DocId) {
-    return this.productRepository.findById(productId)!;
+  async loadProductsById(productId: DocId) {
+    return this.productDataLoader.load(productId);
   }
 
   async getProductVariantById(productId: DocId, productVariantId: DocId) {
@@ -64,8 +69,9 @@ export class CartService {
     if (!product) throw new NotFoundException('Product not found');
 
     const productVariant = product.variants?.id(productVariantId);
-    if (!productVariant)
+    if (!productVariant) {
       throw new NotFoundException('Product variant not found');
+    }
 
     return productVariant;
   }

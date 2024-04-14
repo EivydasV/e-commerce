@@ -34,7 +34,7 @@ export class CategoryResolver {
   }
 
   @ResolveField(() => Category)
-  async parent(@Parent() category: CategoryDocument): Promise<Category> {
-    return this.categoriesService.findParent(category);
+  async parent(@Parent() category: CategoryDocument): Promise<Category | null> {
+    return this.categoriesService.loadById(category.parent);
   }
 }

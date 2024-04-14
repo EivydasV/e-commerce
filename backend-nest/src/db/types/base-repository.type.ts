@@ -23,5 +23,5 @@ export interface BaseRepositoryType<Entity> {
   findOne(
     filter: FilterQuery<Entity> | undefined,
   ): MongooseQuery<HydratedDocument<Entity>> | null;
-  estimateCunt(): MongooseQuery<number>;
+  estimateCount(): MongooseQuery<number>;
 }

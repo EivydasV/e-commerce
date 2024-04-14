@@ -15,6 +15,8 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ProductsIndexCommand } from './commands/products-index.command';
 import { ProductElasticsearchRepository } from './repositories/product-elasticsearch.repository';
 import { PostProductListener } from './listeners/post-product.listener';
+import { ProductSearchService } from './services/product-search.service';
+import { ProductSearchResolver } from './resolvers/product-search.resolver';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { PostProductListener } from './listeners/post-product.listener';
     ProductsIndexCommand,
     ProductElasticsearchRepository,
     PostProductListener,
+    ProductSearchService,
+    ProductSearchResolver,
   ],
   exports: [ProductRepository],
 })

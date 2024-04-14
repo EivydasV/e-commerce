@@ -39,7 +39,7 @@ export class CartResolver {
 
   @ResolveField(() => Product)
   async product(@Parent() cart: CartDocument): Promise<Product> {
-    return this.cartService.getProductById(cart.product);
+    return this.cartService.loadProductsById(cart.product);
   }
 
   @ResolveField(() => ProductVariant)

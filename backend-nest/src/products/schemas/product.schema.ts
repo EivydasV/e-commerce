@@ -37,7 +37,7 @@ export class Product extends TimestampsSchema implements SchemaName {
   thumbnail?: string;
 
   @Prop({ default: false })
-  isPublished: boolean;
+  isPublished?: boolean;
 
   @Prop([{ type: ProductVariant, maxlength: 5 }])
   @Field(() => [ProductVariant])

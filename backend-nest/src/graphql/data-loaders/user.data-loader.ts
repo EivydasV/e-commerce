@@ -18,10 +18,9 @@ export class UserDataLoader extends DataLoader<DocId, UserDocument> {
     });
 
     // console.log(users);
-    const attachUserToId = userIds.map((userId) => {
-      return users.find((doc) => doc._id.toString() === userId.toString())!;
-    });
-
-    return attachUserToId;
+    return userIds.map(
+      (userId) =>
+        users.find((doc) => doc._id.toString() === userId.toString())!,
+    );
   }
 }

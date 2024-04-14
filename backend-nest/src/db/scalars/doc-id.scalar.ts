@@ -3,13 +3,11 @@ import { Types } from 'mongoose';
 import { Kind } from 'graphql/language';
 
 function validate(docID: any): Types.ObjectId {
-  const error = new Error('invalid id');
-
   if (Types.ObjectId.isValid(docID)) {
     return new Types.ObjectId(docID as string);
   }
 
-  throw error;
+  throw new Error('invalid id');
 }
 
 export const DocIdScalar = new GraphQLScalarType({

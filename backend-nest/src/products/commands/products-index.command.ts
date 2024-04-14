@@ -10,9 +10,12 @@ import { ProductElasticsearchRepository } from '../repositories/product-elastics
 
 @Command({
   name: 'products:index',
+  description:
+    'it will drop all the products index and reindex all the products',
 })
 export class ProductsIndexCommand extends CommandRunner {
   private readonly logger = new Logger(ProductsIndexCommand.name);
+  private readonly batchSize = 100;
   constructor(
     private readonly productsRepository: ProductRepository,
     private readonly productsElasticsearch: ProductElasticsearchRepository,
@@ -20,24 +23,45 @@ export class ProductsIndexCommand extends CommandRunner {
     super();
   }
   async run() {
-    const self = this;
     const progressBar = new cliProgress.SingleBar(
       {},
       cliProgress.Presets.shades_classic,
     );
-    const productsCount = await this.productsRepository.estimateCunt();
+
+    const productsCount = await this.productsRepository.estimateCount();
+
+    await this.prepareIndexing();
 
     progressBar.start(productsCount, 0);
 
-    const products = this.productsRepository
+    const productsQuery = this.createQuery();
+
+    await this.indexProducts(productsQuery, progressBar);
+    progressBar.stop();
+  }
+
+  private async prepareIndexing() {
+    await this.productsElasticsearch.dropIndex();
+    await this.productsElasticsearch.onModuleInit();
+  }
+
+  private createQuery() {
+    return this.productsRepository
       .findAll()
       .populate<{ categories: CategoryDocument[] }>({
         path: 'categories',
         model: Category.name,
       })
       .cursor({ lean: true });
+  }
 
-    await products.eachAsync(
+  private async indexProducts(
+    productsQuery: ReturnType<typeof this.createQuery>,
+    progressBar: cliProgress.SingleBar,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this;
+    await productsQuery.eachAsync(
       async function (products) {
         const res = await self.productsElasticsearch.bulkIndex(products);
         if (res.errors) {
@@ -45,8 +69,7 @@ export class ProductsIndexCommand extends CommandRunner {
         }
         progressBar.increment(products.length);
       },
-      { batchSize: 100 },
+      { batchSize: this.batchSize },
     );
-    progressBar.stop();
   }
 }

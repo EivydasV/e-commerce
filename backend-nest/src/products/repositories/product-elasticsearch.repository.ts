@@ -1,21 +1,26 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { BaseRepository } from '../../elasticsearch/repositories/base.repository';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { ProductIndex } from '../validations/product-elasticsearch.validation';
+import { productIndexSchema } from '../validations/product-elasticsearch.validation';
 
 @Injectable()
 export class ProductElasticsearchRepository
-  extends BaseRepository<ProductIndex>
+  extends BaseRepository<typeof productIndexSchema>
   implements OnModuleInit
 {
   static readonly INDEX = 'products';
 
-  constructor(private readonly elasticSearchService: ElasticsearchService) {
-    super(elasticSearchService, ProductElasticsearchRepository.INDEX);
+  constructor(readonly elasticSearchService: ElasticsearchService) {
+    super(
+      elasticSearchService,
+      ProductElasticsearchRepository.INDEX,
+      productIndexSchema,
+    );
   }
 
   async onModuleInit() {
     const currentMapping = await this.geCurrentMapping();
+
     if (!currentMapping[ProductElasticsearchRepository.INDEX]) {
       await this.createMapping({
         properties: {

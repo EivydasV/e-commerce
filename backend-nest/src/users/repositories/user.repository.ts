@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { MongooseQuery } from '../../db/types/query.type';
 import { PageableRepository } from '../../db/repositories/pageable.repository';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UserRepository extends PageableRepository<User> {

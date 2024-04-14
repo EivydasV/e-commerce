@@ -161,6 +161,7 @@ type ProductVariant {
 }
 
 type Query {
+  autoComplete(query: String!): [String!]!
   categories: [Category!]!
   findProductBySlug(slug: String!): Product
   findProductsBySeller(paginate: OffsetPaginationInput, sellerId: DocId!): OffsetPaginatedProduct!

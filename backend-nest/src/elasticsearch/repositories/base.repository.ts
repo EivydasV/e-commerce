@@ -1,39 +1,48 @@
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import {
+  BulkResponse,
   IndicesCreateResponse,
   IndicesGetMappingResponse,
+  IndicesResponseBase,
   MappingTypeMapping,
+  QueryDslQueryContainer,
+  SearchResponse,
+  SearchSuggester,
   WriteResponseBase,
 } from '@elastic/elasticsearch/lib/api/types';
-import { productIndexValidation } from '../../products/validations/product-elasticsearch.validation';
+import { z } from 'zod';
+import { BaseRepositoryInterface } from './interfaces/base-repository.interface';
 
-export class BaseRepository<T> {
+export class BaseRepository<T extends z.ZodTypeAny>
+  implements BaseRepositoryInterface<T>
+{
   constructor(
     private readonly elasticSearch: ElasticsearchService,
     private readonly indexName: string,
+    private readonly zodSchema: T,
   ) {}
 
-  async index(data: T): Promise<WriteResponseBase> {
-    const parsedProduct = productIndexValidation.parse(data);
+  async index(data: z.input<T>): Promise<WriteResponseBase> {
+    const parsedData = this.zodSchema.parse(data);
+
     return this.elasticSearch.index({
-      id: parsedProduct.id,
+      id: parsedData.id,
       index: this.indexName,
-      document: parsedProduct,
+      document: parsedData,
     });
   }
 
-  async bulkIndex(data: T[]) {
-    const convertedProducts = data.map((data) =>
-      this.convertObjectToIndex(data),
-    );
-    const operations = convertedProducts.flatMap((data) => [
+  async bulkIndex(data: z.input<T>[]): Promise<BulkResponse> {
+    const parsedData = this.zodSchema.array().parse(data);
+
+    const operations = parsedData.flatMap((data) => [
       {
         index: {
           _index: this.indexName,
           _id: data.id,
         },
       },
-      data.restProduct,
+      data,
     ]);
 
     return this.elasticSearch.bulk({
@@ -41,16 +50,21 @@ export class BaseRepository<T> {
     });
   }
 
-  protected convertObjectToIndex(data: T): {
-    restProduct: Omit<T, '_id'>;
-    id: string;
-  } {
-    const { _id, ...restProduct } = data;
+  async search(
+    query?: QueryDslQueryContainer,
+    suggest?: SearchSuggester,
+  ): Promise<SearchResponse<T>> {
+    return this.elasticSearch.search<z.input<T>>({
+      index: this.indexName,
+      query: query,
+      suggest,
+    });
+  }
 
-    return {
-      restProduct,
-      id: _id.toString(),
-    };
+  async dropIndex(): Promise<IndicesResponseBase> {
+    return this.elasticSearch.indices.delete({
+      index: this.indexName,
+    });
   }
 
   async createMapping(
@@ -65,6 +79,7 @@ export class BaseRepository<T> {
   async geCurrentMapping(): Promise<IndicesGetMappingResponse> {
     return this.elasticSearch.indices.getMapping({
       index: this.indexName,
+      ignore_unavailable: true,
     });
   }
 }

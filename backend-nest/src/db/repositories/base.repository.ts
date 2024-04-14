@@ -25,7 +25,8 @@ export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
       ...payload,
       entityName: this.entity.collection.collectionName,
     });
-    this.emitEvent(this.event?.postCreated, create);
+    const res = this.emitEvent(this.event?.postCreated, create);
+    console.log({ res });
 
     return create;
   }
@@ -54,7 +55,7 @@ export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
     return this.entity.findOne(filter);
   }
 
-  estimateCunt(): MongooseQuery<number> {
+  estimateCount(): MongooseQuery<number> {
     return this.entity.estimatedDocumentCount();
   }
 

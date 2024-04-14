@@ -4,7 +4,6 @@ import { CreateProductVariantInput } from '../inputs/create-product-variant.inpu
 import { UserDocument } from '../../users/schemas/user.schema';
 import { CurrentUser } from '../../graphql/decorators/current-user.decorator';
 import { Product } from '../schemas/product.schema';
-import { ParseMongoIdPipe } from '../../db/pipes/parse-mongo-id.pipe';
 import { DocId } from '../../db/types/doc-id.type';
 import { DocIdScalar } from '../../db/scalars/doc-id.scalar';
 
