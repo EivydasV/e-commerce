@@ -67,6 +67,7 @@ export class ProductsIndexCommand extends CommandRunner {
         if (res.errors) {
           self.logger.error(res.items);
         }
+
         progressBar.increment(products.length);
       },
       { batchSize: this.batchSize },

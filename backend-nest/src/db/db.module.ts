@@ -1,7 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import dbConfig from './configs/db.config';
+import { EventEmitter } from './emitters/event.emitter';
+
+@Global()
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -14,5 +17,7 @@ import dbConfig from './configs/db.config';
       },
     }),
   ],
+  providers: [EventEmitter],
+  exports: [EventEmitter],
 })
 export class DbModule {}

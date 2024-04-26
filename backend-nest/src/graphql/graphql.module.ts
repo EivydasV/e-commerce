@@ -10,6 +10,7 @@ import { CategoryModule } from '../categories/categoryModule';
 import { CategoryDataLoader } from './data-loaders/category.data-loader';
 import { ProductDataLoader } from './data-loaders/product.data-loader';
 import { ProductsModule } from '../products/products.module';
+import { ElasticSearchToGraphqlTransformer } from '../elasticsearch/transformers/graphql-transformer';
 
 @Global()
 @Module({
@@ -40,7 +41,17 @@ import { ProductsModule } from '../products/products.module';
       },
     }),
   ],
-  providers: [UserDataLoader, CategoryDataLoader, ProductDataLoader],
-  exports: [UserDataLoader, CategoryDataLoader, ProductDataLoader],
+  providers: [
+    UserDataLoader,
+    CategoryDataLoader,
+    ProductDataLoader,
+    ElasticSearchToGraphqlTransformer,
+  ],
+  exports: [
+    UserDataLoader,
+    CategoryDataLoader,
+    ProductDataLoader,
+    ElasticSearchToGraphqlTransformer,
+  ],
 })
 export class GraphqlModule {}

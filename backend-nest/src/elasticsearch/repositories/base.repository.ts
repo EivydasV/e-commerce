@@ -5,19 +5,24 @@ import {
   IndicesGetMappingResponse,
   IndicesResponseBase,
   MappingTypeMapping,
-  QueryDslQueryContainer,
+  SearchRequest,
   SearchResponse,
-  SearchSuggester,
   WriteResponseBase,
 } from '@elastic/elasticsearch/lib/api/types';
 import { z } from 'zod';
 import { BaseRepositoryInterface } from './interfaces/base-repository.interface';
+import { MapperInterface } from '../../core/interfaces/mapper.interface';
+import { HydratedDocument } from 'mongoose';
 
-export class BaseRepository<T extends z.ZodTypeAny>
-  implements BaseRepositoryInterface<T>
+export class BaseRepository<T extends z.ZodTypeAny, K>
+  implements BaseRepositoryInterface<T, K>
 {
   constructor(
     private readonly elasticSearch: ElasticsearchService,
+    private readonly entityMapper: MapperInterface<
+      SearchResponse<z.output<T>>,
+      HydratedDocument<K>[]
+    >,
     private readonly indexName: string,
     private readonly zodSchema: T,
   ) {}
@@ -25,10 +30,20 @@ export class BaseRepository<T extends z.ZodTypeAny>
   async index(data: z.input<T>): Promise<WriteResponseBase> {
     const parsedData = this.zodSchema.parse(data);
 
-    return this.elasticSearch.index({
+    return this.elasticSearch.index<z.input<T>>({
       id: parsedData.id,
       index: this.indexName,
       document: parsedData,
+    });
+  }
+
+  async updateIndex(data: z.input<T>): Promise<WriteResponseBase> {
+    const parsedData = this.zodSchema.parse(data);
+
+    return this.elasticSearch.update<z.input<T>>({
+      id: parsedData.id,
+      index: this.indexName,
+      doc: {},
     });
   }
 
@@ -51,14 +66,20 @@ export class BaseRepository<T extends z.ZodTypeAny>
   }
 
   async search(
-    query?: QueryDslQueryContainer,
-    suggest?: SearchSuggester,
-  ): Promise<SearchResponse<T>> {
+    params: Omit<SearchRequest, 'index'>,
+  ): Promise<SearchResponse<z.output<T>>> {
     return this.elasticSearch.search<z.input<T>>({
+      ...params,
       index: this.indexName,
-      query: query,
-      suggest,
     });
+  }
+
+  async searchAndHydrate(
+    params: Omit<SearchRequest, 'index'>,
+  ): Promise<HydratedDocument<K>[]> {
+    const search = await this.search(params);
+
+    return this.entityMapper.transform(search);
   }
 
   async dropIndex(): Promise<IndicesResponseBase> {

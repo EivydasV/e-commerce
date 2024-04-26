@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { QueryBuilder } from './builders/query.builder';
 
-@Module({})
+@Global()
+@Module({
+  providers: [QueryBuilder],
+  exports: [QueryBuilder],
+})
 export class ElasticsearchModule {}

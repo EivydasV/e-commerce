@@ -16,6 +16,7 @@ import { CartModule } from './cart/cart.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ElasticsearchModule } from './elasticsearch/elasticsearch.module';
 import { EventsModule } from './events/events.module';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
@@ -25,7 +26,6 @@ import { EventsModule } from './events/events.module';
     UsersModule,
     DbModule,
     SecurityModule,
-    EventEmitterModule.forRoot(),
     SupertokenModule.forRootAsync({
       inject: [supertokenConfig.KEY],
       imports: [ConfigModule.forFeature(supertokenConfig)],
@@ -50,6 +50,7 @@ import { EventsModule } from './events/events.module';
     CartModule,
     ElasticsearchModule,
     EventsModule,
+    CoreModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard }],

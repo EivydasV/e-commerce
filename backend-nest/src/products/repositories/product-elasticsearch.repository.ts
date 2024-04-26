@@ -1,18 +1,25 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { BaseRepository } from '../../elasticsearch/repositories/base.repository';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { productIndexSchema } from '../validations/product-elasticsearch.validation';
+import { ElasticsearchToProductMapper } from '../mappers/elasticsearch-to-product.mapper';
+import { Product } from '../schemas/product.schema';
+import { elasticsearchPropertiesConstant } from '../constants/elasticsearch-properties.constant';
+import { PageableRepository } from '../../elasticsearch/repositories/pageable.repository';
 
 @Injectable()
 export class ProductElasticsearchRepository
-  extends BaseRepository<typeof productIndexSchema>
+  extends PageableRepository<typeof productIndexSchema, Product>
   implements OnModuleInit
 {
   static readonly INDEX = 'products';
 
-  constructor(readonly elasticSearchService: ElasticsearchService) {
+  constructor(
+    readonly elasticSearchService: ElasticsearchService,
+    readonly elasticsearchToProductMapper: ElasticsearchToProductMapper,
+  ) {
     super(
       elasticSearchService,
+      elasticsearchToProductMapper,
       ProductElasticsearchRepository.INDEX,
       productIndexSchema,
     );
@@ -23,35 +30,7 @@ export class ProductElasticsearchRepository
 
     if (!currentMapping[ProductElasticsearchRepository.INDEX]) {
       await this.createMapping({
-        properties: {
-          title: { type: 'search_as_you_type' },
-          description: { type: 'text' },
-          categories: {
-            type: 'nested',
-            properties: {
-              name: { type: 'text' },
-            },
-          },
-          manufacturer: { type: 'text' },
-          isPublished: { type: 'boolean' },
-          variants: {
-            type: 'nested',
-            properties: {
-              pricing: {
-                type: 'nested',
-                properties: {
-                  cost: { type: 'float' },
-                  currency: { type: 'text' },
-                  salePrice: { type: 'float' },
-                },
-              },
-              quantity: { type: 'integer' },
-              color: { type: 'text' },
-            },
-          },
-          createdAt: { type: 'date' },
-          updatedAt: { type: 'date' },
-        },
+        properties: elasticsearchPropertiesConstant,
       });
     }
   }

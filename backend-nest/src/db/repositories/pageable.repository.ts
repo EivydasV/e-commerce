@@ -3,35 +3,36 @@ import { OffsetPaginationInput } from 'src/graphql/inputs/offset-pagination.inpu
 import { FilterQuery, HydratedDocument, Model } from 'mongoose';
 import { BaseRepository } from './base.repository';
 import { OffsetPaginatedType } from '../types/offset-paginated.type';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Event } from '../../events/types/event.type';
+import { PageLimitReachedError } from '../../core/errors/page-limit-reached.error';
 
 @Injectable()
 export class PageableRepository<Entity> extends BaseRepository<Entity> {
-  constructor(
-    private readonly model: Model<Entity>,
-    event?: Event,
-    eventEmitter?: EventEmitter2,
-  ) {
-    super(model, event, eventEmitter);
+  constructor(private readonly model: Model<Entity>) {
+    super(model);
   }
 
   async offsetPaginate(
     offsetPaginationInput: OffsetPaginationInput,
     filters?: FilterQuery<HydratedDocument<Entity>>,
   ): Promise<OffsetPaginatedType<Entity>> {
-    const { perPage, skip } = offsetPaginationInput;
+    const { perPage, skip, isLimitReached } = offsetPaginationInput;
 
-    const [docs, totalDocs] = await Promise.all([
-      this.model
-        .find(filters || {})
-        .limit(perPage)
-        .skip(skip),
-      this.model.countDocuments(filters),
-    ]);
+    if (isLimitReached) {
+      throw new PageLimitReachedError();
+    }
+
+    const findPromise = this.model
+      .find(filters || {})
+      .limit(perPage)
+      .skip(skip);
+
+    const countPromise = this.countDocuments(filters);
+
+    const [docs, totalDocs] = await Promise.all([findPromise, countPromise]);
 
     return this.paginate(offsetPaginationInput, docs, totalDocs);
   }
+
   private paginate(
     pageInfo: OffsetPaginationInput,
     docs: Entity[],

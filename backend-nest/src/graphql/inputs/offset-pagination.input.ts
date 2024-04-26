@@ -1,5 +1,6 @@
 import { Field, HideField, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsOptional, IsPositive, Max } from 'class-validator';
+import { documentLimitConstant } from '../../core/constants/document-limit.constant';
 
 @InputType()
 export class OffsetPaginationInput {
@@ -19,5 +20,10 @@ export class OffsetPaginationInput {
   @HideField()
   get skip() {
     return (this.page - 1) * this.perPage;
+  }
+
+  @HideField()
+  get isLimitReached() {
+    return this.perPage * this.page > documentLimitConstant;
   }
 }

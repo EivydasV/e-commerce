@@ -14,9 +14,12 @@ import {
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ProductsIndexCommand } from './commands/products-index.command';
 import { ProductElasticsearchRepository } from './repositories/product-elasticsearch.repository';
-import { PostProductListener } from './listeners/post-product.listener';
+import { PostSaveProductListener } from './listeners/post-save-product.listener';
 import { ProductSearchService } from './services/product-search.service';
 import { ProductSearchResolver } from './resolvers/product-search.resolver';
+import { ElasticsearchToProductMapper } from './mappers/elasticsearch-to-product.mapper';
+import { productEventsConstant } from './constants/product-events.constant';
+import { EventEmitter } from '../db/emitters/event.emitter';
 
 @Module({
   imports: [
@@ -24,7 +27,18 @@ import { ProductSearchResolver } from './resolvers/product-search.resolver';
     ElasticsearchModule.register({
       node: 'http://elasticsearch:9200',
     }),
-    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    MongooseModule.forFeatureAsync([
+      {
+        inject: [EventEmitter],
+        name: Product.name,
+        useFactory: (eventEmitter: EventEmitter) => {
+          return eventEmitter.emitEvents(ProductSchema, {
+            postCreated: productEventsConstant.postCreated,
+            postUpdated: productEventsConstant.postUpdated,
+          });
+        },
+      },
+    ]),
     MongooseModule.forFeature([
       { name: ProductVariant.name, schema: ProductVariantSchema },
     ]),
@@ -37,9 +51,10 @@ import { ProductSearchResolver } from './resolvers/product-search.resolver';
     ProductVariantService,
     ProductsIndexCommand,
     ProductElasticsearchRepository,
-    PostProductListener,
+    PostSaveProductListener,
     ProductSearchService,
     ProductSearchResolver,
+    ElasticsearchToProductMapper,
   ],
   exports: [ProductRepository],
 })

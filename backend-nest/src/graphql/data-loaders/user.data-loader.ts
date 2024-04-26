@@ -17,7 +17,6 @@ export class UserDataLoader extends DataLoader<DocId, UserDocument> {
       _id: { $in: userIds },
     });
 
-    // console.log(users);
     return userIds.map(
       (userId) =>
         users.find((doc) => doc._id.toString() === userId.toString())!,

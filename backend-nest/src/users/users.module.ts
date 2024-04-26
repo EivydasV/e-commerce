@@ -5,7 +5,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { UserRepository } from './repositories/user.repository';
 import { SecurityModule } from '../security/security.module';
-import { CartResolver } from './resolvers/cart.resolver';
 import { CartModule } from '../cart/cart.module';
 import { CartService } from './services/cart.service';
 
@@ -15,13 +14,7 @@ import { CartService } from './services/cart.service';
     SecurityModule,
     CartModule,
   ],
-  providers: [
-    UserResolver,
-    UsersService,
-    UserRepository,
-    CartResolver,
-    CartService,
-  ],
+  providers: [UserResolver, UsersService, UserRepository, CartService],
   exports: [UserRepository],
 })
 export class UsersModule {}

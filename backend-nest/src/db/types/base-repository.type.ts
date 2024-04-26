@@ -24,4 +24,5 @@ export interface BaseRepositoryType<Entity> {
     filter: FilterQuery<Entity> | undefined,
   ): MongooseQuery<HydratedDocument<Entity>> | null;
   estimateCount(): MongooseQuery<number>;
+  countDocuments(filter?: FilterQuery<Entity>): MongooseQuery<number>;
 }

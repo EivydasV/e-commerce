@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
-@Module({})
+@Module({
+  imports: [EventEmitterModule.forRoot()],
+})
 export class EventsModule {}

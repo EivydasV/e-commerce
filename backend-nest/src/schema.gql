@@ -2,9 +2,19 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Autocomplete {
+  description: String!
+  title: String!
+}
+
+type AutocompleteModel {
+  count: Int!
+  hits: [Hits!]!
+  maxScore: Int!
+}
+
 type Cart {
   _id: DocId!
-  cart: [Cart!]!
   createdAt: DateTime
   product: Product!
   productVariant: ProductVariant!
@@ -59,6 +69,13 @@ input ForgotPasswordInput {
   email: String!
 }
 
+type Hits {
+  _id: String!
+  _index: String!
+  _score: Int!
+  _source: Autocomplete!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -105,6 +122,19 @@ type OffsetPaginatedUser {
 input OffsetPaginationInput {
   page: Int! = 1
   perPage: Int! = 20
+}
+
+enum Operators {
+  EQUAL
+  GREATER_THAN
+  GREATER_THAN_OR_EQUAL
+  IN
+  LESS_THAN
+  LESS_THAN_OR_EQUAL
+  LIKE
+  NOT_EQUAL
+  NOT_IN
+  NOT_LIKE
 }
 
 type Pricing {
@@ -161,19 +191,30 @@ type ProductVariant {
 }
 
 type Query {
-  autoComplete(query: String!): [String!]!
+  autoComplete(query: String!): AutocompleteModel!
   categories: [Category!]!
   findProductBySlug(slug: String!): Product
   findProductsBySeller(paginate: OffsetPaginationInput, sellerId: DocId!): OffsetPaginatedProduct!
   findUserByEmail(email: String!): User
   findUsers(paginate: OffsetPaginationInput): OffsetPaginatedUser!
   me: User!
+  searchProducts(paginate: OffsetPaginationInput, searchProductInputs: SearchProductInput): OffsetPaginatedProduct!
 }
 
 input ResetPasswordInput {
   email: String!
   forgotPasswordToken: String!
   password: String!
+}
+
+input SearchInput {
+  field: String!
+  operator: Operators!
+  query: String!
+}
+
+input SearchProductInput {
+  queries: [SearchInput!]!
 }
 
 input UpdateProductInput {
