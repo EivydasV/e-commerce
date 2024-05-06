@@ -10,6 +10,10 @@ import { DocId } from './doc-id.type';
 
 export interface BaseRepositoryType<Entity> {
   create(payload: OmitBaseType<Entity>): Promise<Entity>;
+  updateOrCreate(
+    filter: FilterQuery<Entity>,
+    update: UpdateQuery<Entity>,
+  ): MongooseQuery<HydratedDocument<Entity>>;
   findById(id: DocId): MongooseQuery<HydratedDocument<Entity>> | null;
   findByIdAndUpdate(
     id: DocId,

@@ -20,10 +20,10 @@
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "plugins": [
-      {
-        "transform": "typia/lib/transform"
-      }
-    ]
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    }
   }
 }

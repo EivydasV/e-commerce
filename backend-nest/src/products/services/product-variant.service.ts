@@ -5,8 +5,11 @@ import {
 } from '@nestjs/common';
 import { ProductRepository } from '../repositories/product.repository';
 import { CreateProductVariantInput } from '../inputs/create-product-variant.input';
-import { ForbiddenError } from '@nestjs/apollo';
-import { DocId } from '../../db/types/doc-id.type';
+import { DocId } from 'src/db/types/doc-id.type';
+import { AppAbility } from 'src/casl/types/app-ability.type';
+import { ActionEnum } from 'src/casl/enums/action.enum';
+import { ForbiddenError, subject } from '@casl/ability';
+import { SubjectEnum } from 'src/casl/enums/subject.enum';
 
 @Injectable()
 export class ProductVariantService {
@@ -15,16 +18,17 @@ export class ProductVariantService {
   async create(
     productVariantInput: CreateProductVariantInput[],
     productId: DocId,
-    userId: DocId,
+    abilities: AppAbility,
   ) {
     const findProduct = await this.productRepository.findById(productId);
     if (!findProduct) {
       throw new NotFoundException('Product not found');
     }
 
-    if (findProduct.seller.toString() !== userId.toString()) {
-      throw new ForbiddenError('You are not allowed to do this action');
-    }
+    ForbiddenError.from(abilities).throwUnlessCan(
+      ActionEnum.Create,
+      subject(SubjectEnum.Product, findProduct),
+    );
 
     if (!findProduct?.variants) {
       throw new NotFoundException('Product variants not found');
@@ -43,14 +47,16 @@ export class ProductVariantService {
     return savedProduct;
   }
 
-  async remove(variantId: DocId, productId: DocId, userId: DocId) {
+  async remove(variantId: DocId, productId: DocId, abilities: AppAbility) {
     const findProduct = await this.productRepository.findById(productId);
     if (!findProduct) {
       throw new NotFoundException('Product not found');
     }
-    if (findProduct.seller.toString() !== userId.toString()) {
-      throw new ForbiddenError('You are not allowed to do this action');
-    }
+
+    ForbiddenError.from(abilities).throwUnlessCan(
+      ActionEnum.Delete,
+      subject(SubjectEnum.Product, findProduct),
+    );
 
     if (!findProduct?.variants) {
       throw new NotFoundException('Product variants not found');

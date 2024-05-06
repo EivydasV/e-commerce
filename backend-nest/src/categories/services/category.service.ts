@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryInput } from '../inputs/create-category.input';
 import { DocId } from '../../db/types/doc-id.type';
 import { CategoryRepository } from '../repositories/category.repository';
-import { CategoryDocument } from '../schemas/category.schema';
 import { CategoryDataLoader } from '../../graphql/data-loaders/category.data-loader';
 
 @Injectable()
@@ -27,14 +26,6 @@ export class CategoryService {
       ...createCategoryInput,
       parent: findCategory._id,
     });
-  }
-
-  async findParent(category: CategoryDocument) {
-    const populateCategory = await category.populate<{
-      parent: CategoryDocument;
-    }>('parent');
-
-    return populateCategory.parent;
   }
 
   async find() {

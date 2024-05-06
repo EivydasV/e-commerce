@@ -94,6 +94,11 @@ export class BaseRepository<T extends z.ZodTypeAny, K>
     return this.elasticSearch.indices.create({
       index: this.indexName,
       mappings,
+      settings: {
+        mapping: {
+          coerce: false,
+        },
+      },
     });
   }
 

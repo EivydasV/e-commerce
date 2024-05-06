@@ -1,5 +1,5 @@
 import { InputType } from '@nestjs/graphql';
-import { IsInt, IsMongoId, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsInt, IsNotEmpty, IsPositive } from 'class-validator';
 
 @InputType()
 export class CreateCartInput {

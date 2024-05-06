@@ -21,6 +21,16 @@ export class BaseRepository<Entity> implements BaseRepositoryType<Entity> {
     });
   }
 
+  updateOrCreate(
+    filter: FilterQuery<Entity>,
+    update: UpdateQuery<Entity>,
+  ): MongooseQuery<HydratedDocument<Entity>> {
+    return this.entity.findOneAndUpdate(filter, update, {
+      upsert: true,
+      new: true,
+    });
+  }
+
   findById(DocId: DocId): MongooseQuery<HydratedDocument<Entity>> | null {
     return this.entity.findById(DocId);
   }

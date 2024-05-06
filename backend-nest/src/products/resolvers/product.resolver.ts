@@ -13,36 +13,48 @@ import {
 } from '../schemas/product.schema';
 import { ProductService } from '../services/product.service';
 import { CreateProductInput } from '../inputs/create-product.input';
-import { CurrentUser } from '../../graphql/decorators/current-user.decorator';
-import { User, UserDocument } from '../../users/schemas/user.schema';
-import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.input';
-import { DocIdScalar } from '../../db/scalars/doc-id.scalar';
-import { DocId } from '../../db/types/doc-id.type';
+import { CurrentUser } from 'src/graphql/decorators/current-user.decorator';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { OffsetPaginationInput } from 'src/graphql/inputs/offset-pagination.input';
+import { DocIdScalar } from 'src/db/scalars/doc-id.scalar';
+import { DocId } from 'src/db/types/doc-id.type';
 import { UpdateProductInput } from '../inputs/update-product.input';
-import { Category } from '../../categories/schemas/category.schema';
+import { Category } from 'src/categories/schemas/category.schema';
+import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
+import { ActionEnum } from 'src/casl/enums/action.enum';
+import { Abilities } from 'src/casl/decoratos/abilities.decorator';
+import { AppAbility } from 'src/casl/types/app-ability.type';
+import { SubjectEnum } from 'src/casl/enums/subject.enum';
 
 @Resolver(() => Product)
 export class ProductResolver {
   constructor(private readonly productService: ProductService) {}
 
+  @CheckPolicies((ability) => ability.can(ActionEnum.Read, SubjectEnum.Product))
   @Query(() => Product, { nullable: true })
   async findProductBySlug(@Args('slug') slug: string) {
     return this.productService.findBySlug(slug);
   }
 
+  @CheckPolicies((ability) =>
+    ability.can(ActionEnum.Create, SubjectEnum.Product),
+  )
   @Mutation(() => Product)
   async createProduct(
     @Args('createProductInput') createProductInput: CreateProductInput,
     @Args('categoryIds', { type: () => [DocIdScalar] }) categoryIds: DocId[],
     @CurrentUser() currentUser: UserDocument,
+    @Abilities() abilities: AppAbility,
   ): Promise<Product> {
     return this.productService.create(
       createProductInput,
       categoryIds,
       currentUser._id,
+      abilities,
     );
   }
 
+  @CheckPolicies((ability) => ability.can(ActionEnum.Read, SubjectEnum.Product))
   @Query(() => OffsetPaginatedProduct)
   async findProductsBySeller(
     @Args('paginate', { nullable: true })
@@ -55,6 +67,9 @@ export class ProductResolver {
     return this.productService.paginate(offsetPaginationInput, sellerId);
   }
 
+  @CheckPolicies((ability) =>
+    ability.can(ActionEnum.Update, SubjectEnum.Product),
+  )
   @Mutation(() => Product)
   async updateProduct(
     @Args('productId', {
@@ -62,15 +77,14 @@ export class ProductResolver {
     })
     productId: DocId,
     @Args('updateProductInput') updateProductInput: UpdateProductInput,
-    @CurrentUser() currentUser: UserDocument,
+    @Abilities() abilities: AppAbility,
   ) {
-    return this.productService.update(
-      productId,
-      currentUser._id,
-      updateProductInput,
-    );
+    return this.productService.update(productId, updateProductInput, abilities);
   }
 
+  @CheckPolicies((ability) =>
+    ability.can(ActionEnum.Delete, SubjectEnum.Product),
+  )
   @Mutation(() => Boolean)
   async deleteProduct(
     @Args('productId', {
@@ -78,8 +92,9 @@ export class ProductResolver {
     })
     productId: DocId,
     @CurrentUser() currentUser: UserDocument,
+    @Abilities() abilities: AppAbility,
   ): Promise<boolean> {
-    await this.productService.delete(productId, currentUser._id);
+    await this.productService.delete(productId, currentUser._id, abilities);
 
     return true;
   }

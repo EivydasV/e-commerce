@@ -18,7 +18,6 @@ export class SupertokenGuard implements CanActivate {
       err = res;
     });
 
-    console.log('err', err);
     if (resp.headersSent) {
       throw new STError({
         message: 'RESPONSE_SENT',

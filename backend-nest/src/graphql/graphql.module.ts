@@ -10,7 +10,7 @@ import { CategoryModule } from '../categories/categoryModule';
 import { CategoryDataLoader } from './data-loaders/category.data-loader';
 import { ProductDataLoader } from './data-loaders/product.data-loader';
 import { ProductsModule } from '../products/products.module';
-import { ElasticSearchToGraphqlTransformer } from '../elasticsearch/transformers/graphql-transformer';
+import GraphQLJSON from 'graphql-type-json';
 
 @Global()
 @Module({
@@ -20,7 +20,7 @@ import { ElasticSearchToGraphqlTransformer } from '../elasticsearch/transformers
     ProductsModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      resolvers: { DocId: DocIdScalar },
+      resolvers: { DocId: DocIdScalar, JSON: GraphQLJSON },
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
 
@@ -41,17 +41,7 @@ import { ElasticSearchToGraphqlTransformer } from '../elasticsearch/transformers
       },
     }),
   ],
-  providers: [
-    UserDataLoader,
-    CategoryDataLoader,
-    ProductDataLoader,
-    ElasticSearchToGraphqlTransformer,
-  ],
-  exports: [
-    UserDataLoader,
-    CategoryDataLoader,
-    ProductDataLoader,
-    ElasticSearchToGraphqlTransformer,
-  ],
+  providers: [UserDataLoader, CategoryDataLoader, ProductDataLoader],
+  exports: [UserDataLoader, CategoryDataLoader, ProductDataLoader],
 })
 export class GraphqlModule {}

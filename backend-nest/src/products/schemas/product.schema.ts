@@ -1,17 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Field, ObjectType } from '@nestjs/graphql';
-import { TimestampsSchema } from '../../db/schema/timestamps.schema';
-import { OffsetPaginated } from '../../graphql/paginations/offset/paginated.offset';
-import { User } from '../../users/schemas/user.schema';
+import { TimestampsSchema } from 'src/db/schema/timestamps.schema';
+import { OffsetPaginated } from 'src/graphql/paginations/offset/paginated.offset';
+import { User } from 'src/users/schemas/user.schema';
 import { ProductVariant } from './product-variant.schema';
-import { DocId } from '../../db/types/doc-id.type';
-import { Category } from '../../categories/schemas/category.schema';
-import { SchemaName } from '../../db/types/schema-name.type';
+import { DocId } from 'src/db/types/doc-id.type';
+import { Category } from 'src/categories/schemas/category.schema';
+import { SchemaName } from 'src/db/types/schema-name.type';
 
 export type ProductDocument = HydratedDocument<Product>;
 
-export const ProductEntityName = 'Product';
+export const ProductEntityName = 'products';
 @Schema({
   timestamps: true,
   collection: ProductEntityName,

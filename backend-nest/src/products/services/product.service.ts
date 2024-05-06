@@ -2,14 +2,16 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ProductRepository } from '../repositories/product.repository';
 import { CreateProductInput } from '../inputs/create-product.input';
 import urlSlug from 'url-slug';
-import { ProductDocument } from '../schemas/product.schema';
-import { UserDocument } from '../../users/schemas/user.schema';
-import { DocId } from '../../db/types/doc-id.type';
-import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.input';
+import { DocId } from 'src/db/types/doc-id.type';
+import { OffsetPaginationInput } from 'src/graphql/inputs/offset-pagination.input';
 import { UpdateProductInput } from '../inputs/update-product.input';
-import { CategoryRepository } from '../../categories/repositories/category.repository';
-import { UserDataLoader } from '../../graphql/data-loaders/user.data-loader';
-import { CategoryDataLoader } from '../../graphql/data-loaders/category.data-loader';
+import { CategoryRepository } from 'src/categories/repositories/category.repository';
+import { UserDataLoader } from 'src/graphql/data-loaders/user.data-loader';
+import { CategoryDataLoader } from 'src/graphql/data-loaders/category.data-loader';
+import { AppAbility } from 'src/casl/types/app-ability.type';
+import { ActionEnum } from 'src/casl/enums/action.enum';
+import { ForbiddenError, subject } from '@casl/ability';
+import { SubjectEnum } from 'src/casl/enums/subject.enum';
 
 @Injectable()
 export class ProductService {
@@ -24,7 +26,13 @@ export class ProductService {
     createProductInput: CreateProductInput,
     categoryIds: DocId[],
     userId: DocId,
+    abilities: AppAbility,
   ) {
+    ForbiddenError.from(abilities).throwUnlessCan(
+      ActionEnum.Create,
+      SubjectEnum.Product,
+    );
+
     const findProductByTitle = await this.productRepository.findByTitle(
       createProductInput.title,
     );
@@ -32,6 +40,13 @@ export class ProductService {
     if (findProductByTitle) {
       throw new BadRequestException('Product with this title already exists.');
     }
+
+    if (categoryIds.length > 10) {
+      throw new BadRequestException(
+        'You can only assign a product to a maximum of 10 categories',
+      );
+    }
+
     const findCategories = await this.categoryRepository.findAll({
       _id: { $in: categoryIds },
     });
@@ -41,20 +56,13 @@ export class ProductService {
     }
 
     const slug = urlSlug(createProductInput.title);
+
     return this.productRepository.create({
       ...createProductInput,
       slug,
       seller: userId,
       categories: categoryIds,
     });
-  }
-
-  async findSeller(product: ProductDocument) {
-    const populatedProduct = await product.populate<{ seller: UserDocument }>(
-      'seller',
-    );
-
-    return populatedProduct.seller;
   }
 
   async findBySlug(slug: string) {
@@ -67,26 +75,25 @@ export class ProductService {
     });
   }
 
-  async delete(productId: DocId, userId: DocId) {
+  async delete(productId: DocId, userId: DocId, abilities: AppAbility) {
     const product = await this.productRepository.findById(productId);
 
     if (!product) {
       throw new BadRequestException('Product not found.');
     }
 
-    if (product.seller.toString() !== userId.toString()) {
-      throw new BadRequestException(
-        'You are not authorized to delete this product.',
-      );
-    }
+    ForbiddenError.from(abilities).throwUnlessCan(
+      ActionEnum.Delete,
+      subject(SubjectEnum.Product, product),
+    );
 
     return product.deleteOne();
   }
 
   async update(
     productId: DocId,
-    userId: DocId,
     updateProductInput: UpdateProductInput,
+    abilities: AppAbility,
   ) {
     const product = await this.productRepository.findById(productId);
 
@@ -94,11 +101,10 @@ export class ProductService {
       throw new BadRequestException('Product not found.');
     }
 
-    if (product.seller.toString() !== userId.toString()) {
-      throw new BadRequestException(
-        'You are not authorized to update this product.',
-      );
-    }
+    ForbiddenError.from(abilities).throwUnlessCan(
+      ActionEnum.Update,
+      subject(SubjectEnum.Product, product),
+    );
 
     if (updateProductInput.isPublished === true && !product?.variants?.length) {
       throw new BadRequestException(

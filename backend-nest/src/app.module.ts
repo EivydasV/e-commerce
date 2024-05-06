@@ -7,16 +7,15 @@ import { AuthModule } from './auth/auth.module';
 import { SupertokenModule } from './supertokens/supertoken.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import supertokenConfig from './supertokens/config/supertoken.config';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './graphql/guards/auth.guard';
 import { ProductsModule } from './products/products.module';
 import { HealthModule } from './health/health.module';
 import { CategoryModule } from './categories/categoryModule';
 import { CartModule } from './cart/cart.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ElasticsearchModule } from './elasticsearch/elasticsearch.module';
 import { EventsModule } from './events/events.module';
 import { CoreModule } from './core/core.module';
+import { CaslModule } from './casl/casl.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -51,8 +50,10 @@ import { CoreModule } from './core/core.module';
     ElasticsearchModule,
     EventsModule,
     CoreModule,
+    CaslModule,
+    RoleModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [],
 })
 export class AppModule {}

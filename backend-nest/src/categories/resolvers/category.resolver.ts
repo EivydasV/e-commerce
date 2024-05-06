@@ -9,13 +9,19 @@ import {
 import { CategoryService } from '../services/category.service';
 import { Category, CategoryDocument } from '../schemas/category.schema';
 import { CreateCategoryInput } from '../inputs/create-category.input';
-import { DocIdScalar } from '../../db/scalars/doc-id.scalar';
-import { DocId } from '../../db/types/doc-id.type';
+import { DocIdScalar } from 'src/db/scalars/doc-id.scalar';
+import { DocId } from 'src/db/types/doc-id.type';
+import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
+import { ActionEnum } from 'src/casl/enums/action.enum';
+import { SubjectEnum } from 'src/casl/enums/subject.enum';
 
 @Resolver(() => Category)
 export class CategoryResolver {
   constructor(private readonly categoriesService: CategoryService) {}
 
+  @CheckPolicies((ability) =>
+    ability.can(ActionEnum.Create, SubjectEnum.Category),
+  )
   @Mutation(() => Category)
   async createCategory(
     @Args('createCategoryInput') createCategoryInput: CreateCategoryInput,
@@ -29,7 +35,7 @@ export class CategoryResolver {
   }
 
   @Query(() => [Category])
-  async categories() {
+  async categories(): Promise<CategoryDocument[]> {
     return this.categoriesService.find();
   }
 

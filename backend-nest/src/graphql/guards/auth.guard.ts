@@ -51,6 +51,7 @@ export class AuthGuard implements CanActivate {
     if (!userId) {
       throw new UnauthorizedException();
     }
+
     const parseMongoId = new Types.ObjectId(userId);
 
     const user = await this.userRepository.findById(parseMongoId);

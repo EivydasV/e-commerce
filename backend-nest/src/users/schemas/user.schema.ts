@@ -4,6 +4,8 @@ import { Field, HideField, ObjectType } from '@nestjs/graphql';
 import { TimestampsSchema } from '../../db/schema/timestamps.schema';
 import { OffsetPaginated } from '../../graphql/paginations/offset/paginated.offset';
 import { Cart } from '../../cart/schemas/cart.schema';
+import { Role } from '../../role/schema/role.schema';
+import { DocId } from '../../db/types/doc-id.type';
 
 export type UserDocument = HydratedDocument<User>;
 @Schema({
@@ -32,7 +34,11 @@ export class User extends TimestampsSchema {
   @HideField()
   forgotPasswordTokenExpiresAt?: Date;
 
-  @Prop([{ type: Cart, maxlength: 20 }])
+  @Prop({ required: false, type: Types.ObjectId, ref: 'Role' })
+  @Field(() => Role, { nullable: true })
+  role?: DocId;
+
+  @Prop([{ type: () => Cart, maxlength: 20 }])
   @Field(() => [Cart])
   cart?: Types.DocumentArray<Cart>;
 }

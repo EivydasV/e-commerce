@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import dbConfig from './configs/db.config';
 import { EventEmitter } from './emitters/event.emitter';
+import { EntitySearch } from 'src/db/search/entity.search';
 
 @Global()
 @Module({
@@ -17,7 +18,7 @@ import { EventEmitter } from './emitters/event.emitter';
       },
     }),
   ],
-  providers: [EventEmitter],
-  exports: [EventEmitter],
+  providers: [EventEmitter, EntitySearch],
+  exports: [EventEmitter, EntitySearch],
 })
 export class DbModule {}

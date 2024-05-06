@@ -4,15 +4,17 @@ import {
   MappingProperty,
   QueryDslQueryContainer,
 } from '@elastic/elasticsearch/lib/api/types';
-import { elasticsearchPropertiesConstant } from '../../products/constants/elasticsearch-properties.constant';
-import { supportedOperatorsConstant } from '../constants/supported-operators.constant';
+import { elasticsearchPropertiesConstant } from 'src/products/constants/elasticsearch-properties.constant';
 import { SearchOperatorsEnum } from '../enums/search-operators.enum';
 import { UnsupportedFieldError } from '../errors/unsupported-field.error';
 import { UnsupportedOperatorError } from '../errors/unsupported-operator.error';
-import { InvalidValueForTypeError } from '../errors/invalid-value-for-type.error';
+import { fieldMappings } from 'src/elasticsearch/constants/supported-operators.constant';
+import { DataTypeParser } from 'src/elasticsearch/parsers/data-type.parser';
 
 @Injectable()
 export class QueryBuilder {
+  constructor(private readonly dataTypeParser: DataTypeParser) {}
+
   buildQuery(searchInputs?: SearchInput[]): QueryDslQueryContainer | undefined {
     if (!searchInputs || !searchInputs.length) {
       return undefined;
@@ -24,21 +26,14 @@ export class QueryBuilder {
     const fieldTypes = this.getFieldTypes(elasticsearchPropertiesConstant);
 
     searchInputs.forEach((searchInput) => {
-      const fieldDataType = fieldTypes[searchInput.field];
-      if (!fieldDataType) {
-        throw new UnsupportedFieldError(searchInput.field);
-      }
+      const fieldDataType = this.getFieldType(searchInput.field, fieldTypes);
+      this.checkDataIntegrity(searchInput, fieldDataType);
 
       this.checkIfOperatorIsSupportedForField(
         searchInput.operator,
         fieldDataType,
       );
-
-      this.checkValueDataType(
-        searchInput.query,
-        fieldDataType,
-        searchInput.field,
-      );
+      this.parseValueDataType(searchInput, fieldDataType);
 
       const nestedFields = searchInput.field.split('.').slice(0, -1);
 
@@ -46,15 +41,12 @@ export class QueryBuilder {
         case SearchOperatorsEnum.EQUAL:
           must.push(
             this.createObjectPath(nestedFields, {
-              match: { [searchInput.field]: searchInput.query },
-            }),
-          );
-
-          break;
-        case SearchOperatorsEnum.NOT_EQUAL:
-          mustNot.push(
-            this.createObjectPath(nestedFields, {
-              match: { [searchInput.field]: searchInput.query },
+              term: {
+                [searchInput.field]: {
+                  value: searchInput.query,
+                  case_insensitive: true,
+                },
+              },
             }),
           );
 
@@ -91,25 +83,8 @@ export class QueryBuilder {
           );
 
           break;
-        case SearchOperatorsEnum.IN:
-          must.push(
-            this.createObjectPath(nestedFields, {
-              terms: { [searchInput.field]: searchInput.query },
-            }),
-          );
 
-          break;
-
-        case SearchOperatorsEnum.NOT_IN:
-          mustNot.push(
-            this.createObjectPath(nestedFields, {
-              terms: { [searchInput.field]: searchInput.query },
-            }),
-          );
-
-          break;
-
-        case SearchOperatorsEnum.LIKE:
+        case SearchOperatorsEnum.SEARCH:
           must.push(
             this.createObjectPath(nestedFields, {
               multi_match: {
@@ -125,18 +100,11 @@ export class QueryBuilder {
           );
 
           break;
-
-        case SearchOperatorsEnum.NOT_LIKE:
+        case SearchOperatorsEnum.LIKE:
           mustNot.push(
             this.createObjectPath(nestedFields, {
               multi_match: {
                 query: searchInput.query,
-                type: 'bool_prefix',
-                fields: [
-                  searchInput.field,
-                  `${searchInput.field}._2gram`,
-                  `${searchInput.field}._3gram`,
-                ],
               },
             }),
           );
@@ -155,36 +123,44 @@ export class QueryBuilder {
     return query;
   }
 
-  private checkIfOperatorIsSupportedForField(
-    operator: SearchOperatorsEnum,
-    type: keyof typeof supportedOperatorsConstant,
+  private checkDataIntegrity(
+    searchInputs: SearchInput,
+    fieldTypes: (keyof typeof fieldMappings)[],
   ) {
-    const supportedOperators = supportedOperatorsConstant[type];
-    if (!(operator in supportedOperators)) {
-      throw new UnsupportedOperatorError(operator);
-    }
+    this.checkIfOperatorIsSupportedForField(searchInputs.operator, fieldTypes);
   }
 
-  private checkValueDataType(
-    value: string,
-    type: keyof typeof supportedOperatorsConstant,
-    field: string,
+  private parseValueDataType(
+    searchInputs: SearchInput,
+    fieldTypes: (keyof typeof fieldMappings)[],
   ) {
-    if (type === 'boolean') {
-      if (value !== 'true' && value !== 'false') {
-        throw new InvalidValueForTypeError(type, value, field);
-      }
-    } else if (type === 'number') {
-      if (isNaN(Number(value))) {
-        throw new InvalidValueForTypeError(type, value, field);
-      }
-    } else if (type === 'date') {
-      if (isNaN(Date.parse(value))) {
-        throw new InvalidValueForTypeError(type, value, field);
-      }
-    } else if (type === 'string' || type === 'search_as_you_type') {
-    } else {
-      throw new InvalidValueForTypeError(type, value, field);
+    return fieldTypes.map((type) => {
+      return this.dataTypeParser.parse(searchInputs, type);
+    })[0];
+  }
+
+  private getFieldType(
+    searchField: string,
+    fieldTypes: Record<string, (keyof typeof fieldMappings)[]>,
+  ) {
+    const fieldDataType = fieldTypes[searchField];
+    if (!fieldDataType) {
+      throw new UnsupportedFieldError(searchField);
+    }
+
+    return fieldDataType;
+  }
+
+  private checkIfOperatorIsSupportedForField(
+    operator: SearchOperatorsEnum,
+    types: (keyof typeof fieldMappings)[],
+  ) {
+    const isSupported = types.some((type) =>
+      fieldMappings[type].includes(operator),
+    );
+
+    if (!isSupported) {
+      throw new UnsupportedOperatorError(operator);
     }
   }
 
@@ -211,30 +187,12 @@ export class QueryBuilder {
     };
   }
 
-  private getPropertyType(
-    property: MappingProperty,
-  ): keyof typeof supportedOperatorsConstant {
-    if (property.type === 'date') {
-      return 'date';
-    } else if (property.type === 'boolean') {
-      return 'boolean';
-    } else if (property.type === 'float' || property.type === 'integer') {
-      return 'number';
-    } else if (property.type === 'search_as_you_type') {
-      return 'search_as_you_type';
-    } else {
-      return 'string';
-    }
-  }
-
   private getFieldTypes(
     properties: Record<string, MappingProperty>,
     prefix = '',
-  ): Record<string, keyof typeof supportedOperatorsConstant> {
+  ): Record<string, (keyof typeof fieldMappings)[]> {
     return Object.entries(properties).reduce((acc, [fieldName, fieldType]) => {
       const fullFieldName = prefix ? `${prefix}.${fieldName}` : fieldName;
-
-      const type = this.getPropertyType(fieldType);
 
       if (fieldType.type === 'nested' && 'properties' in fieldType) {
         if (!fieldType?.properties) {
@@ -246,7 +204,18 @@ export class QueryBuilder {
           this.getFieldTypes(fieldType.properties, fullFieldName),
         );
       } else {
-        return { ...acc, [fullFieldName]: type };
+        const types = [fieldType.type];
+        if ('properties' in fieldType) {
+          if (fieldType.properties) {
+            Object.values(fieldType.properties).forEach((property) => {
+              if (property.type) {
+                types.push(property.type);
+              }
+            });
+          }
+        }
+
+        return { ...acc, [fullFieldName]: types };
       }
     }, {});
   }

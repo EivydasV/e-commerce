@@ -8,12 +8,12 @@ import {
 import { Cart, CartDocument } from '../schemas/cart.schema';
 import { CreateCartInput } from '../inputs/create-cart.input';
 import { CartService } from '../services/cart.service';
-import { DocIdScalar } from '../../db/scalars/doc-id.scalar';
-import { DocId } from '../../db/types/doc-id.type';
-import { CurrentUser } from '../../graphql/decorators/current-user.decorator';
-import { UserDocument } from '../../users/schemas/user.schema';
-import { Product } from '../../products/schemas/product.schema';
-import { ProductVariant } from '../../products/schemas/product-variant.schema';
+import { DocIdScalar } from 'src/db/scalars/doc-id.scalar';
+import { DocId } from 'src/db/types/doc-id.type';
+import { CurrentUser } from 'src/graphql/decorators/current-user.decorator';
+import { UserDocument } from 'src/users/schemas/user.schema';
+import { Product } from 'src/products/schemas/product.schema';
+import { ProductVariant } from 'src/products/schemas/product-variant.schema';
 
 @Resolver(() => Cart)
 export class CartResolver {

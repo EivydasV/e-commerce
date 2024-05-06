@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { CreateUserInput } from '../inputs/create-user.input';
 import { BaseHashing } from '../../security/hashings/base.hashing';
@@ -8,9 +8,15 @@ import { ForgotPasswordInput } from '../inputs/forgot-password.input';
 import { ResetPasswordInput } from '../inputs/reset-password.input';
 import { OffsetPaginationInput } from '../../graphql/inputs/offset-pagination.input';
 import { DocId } from '../../db/types/doc-id.type';
+import { User, UserDocument } from '../schemas/user.schema';
+import { RoleDocument } from '../../role/schema/role.schema';
+import { AppAbility } from 'src/casl/types/app-ability.type';
+import { ForbiddenError, subject } from '@casl/ability';
+import { ActionEnum } from 'src/casl/enums/action.enum';
+import { SubjectEnum } from 'src/casl/enums/subject.enum';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly hashingService: BaseHashing,
@@ -21,7 +27,7 @@ export class UsersService {
     return this.userRepository.findByEmail(email);
   }
 
-  async createUser(payload: CreateUserInput) {
+  async createUser(payload: Omit<User, '_id'>) {
     const findUserByEmail = await this.userRepository.findByEmail(
       payload.email,
     );
@@ -35,7 +41,18 @@ export class UsersService {
     return this.userRepository.create(payload);
   }
 
-  async updateUser(id: DocId, payload: UpdateUserInput) {
+  async updateUser(payload: UpdateUserInput, id: DocId, abilities: AppAbility) {
+    const findUser = await this.userRepository.findById(id);
+
+    if (!findUser) {
+      throw new BadRequestException('User not found');
+    }
+
+    ForbiddenError.from(abilities).throwUnlessCan(
+      ActionEnum.Update,
+      subject(SubjectEnum.User, findUser),
+    );
+
     return this.userRepository.findByIdAndUpdate(id, payload);
   }
 
@@ -110,5 +127,13 @@ export class UsersService {
 
   paginate(offsetPaginationInput: OffsetPaginationInput) {
     return this.userRepository.offsetPaginate(offsetPaginationInput);
+  }
+
+  async populateRole(currentUser: UserDocument) {
+    const populatedUser = await currentUser.populate<{ role: RoleDocument }>(
+      'role',
+    );
+
+    return populatedUser.role;
   }
 }

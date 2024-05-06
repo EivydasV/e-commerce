@@ -1,37 +1,29 @@
-import { SearchOperatorsEnum } from '../enums/search-operators.enum';
+import { SearchOperatorsEnum } from 'src/elasticsearch/enums/search-operators.enum';
 
-export const supportedOperatorsConstant = {
-  date: {
-    [SearchOperatorsEnum.EQUAL]: SearchOperatorsEnum.EQUAL,
-    [SearchOperatorsEnum.NOT_EQUAL]: SearchOperatorsEnum.NOT_EQUAL,
-    [SearchOperatorsEnum.GREATER_THAN]: SearchOperatorsEnum.GREATER_THAN,
-    [SearchOperatorsEnum.GREATER_THAN_OR_EQUAL]:
-      SearchOperatorsEnum.GREATER_THAN_OR_EQUAL,
-    [SearchOperatorsEnum.LESS_THAN]: SearchOperatorsEnum.LESS_THAN,
-    [SearchOperatorsEnum.LESS_THAN_OR_EQUAL]:
-      SearchOperatorsEnum.LESS_THAN_OR_EQUAL,
-  },
-  number: {
-    [SearchOperatorsEnum.EQUAL]: SearchOperatorsEnum.EQUAL,
-    [SearchOperatorsEnum.NOT_EQUAL]: SearchOperatorsEnum.NOT_EQUAL,
-    [SearchOperatorsEnum.GREATER_THAN]: SearchOperatorsEnum.GREATER_THAN,
-    [SearchOperatorsEnum.GREATER_THAN_OR_EQUAL]:
-      SearchOperatorsEnum.GREATER_THAN_OR_EQUAL,
-    [SearchOperatorsEnum.LESS_THAN]: SearchOperatorsEnum.LESS_THAN,
-    [SearchOperatorsEnum.LESS_THAN_OR_EQUAL]:
-      SearchOperatorsEnum.LESS_THAN_OR_EQUAL,
-  },
-  boolean: {
-    [SearchOperatorsEnum.EQUAL]: SearchOperatorsEnum.EQUAL,
-    [SearchOperatorsEnum.NOT_EQUAL]: SearchOperatorsEnum.NOT_EQUAL,
-  },
-  string: {
-    [SearchOperatorsEnum.EQUAL]: SearchOperatorsEnum.EQUAL,
-    [SearchOperatorsEnum.NOT_EQUAL]: SearchOperatorsEnum.NOT_EQUAL,
-  },
-
-  search_as_you_type: {
-    [SearchOperatorsEnum.LIKE]: SearchOperatorsEnum.LIKE,
-    [SearchOperatorsEnum.NOT_LIKE]: SearchOperatorsEnum.NOT_LIKE,
-  },
-} as const;
+export const fieldMappings = {
+  keyword: [SearchOperatorsEnum.EQUAL],
+  text: [SearchOperatorsEnum.LIKE],
+  boolean: [SearchOperatorsEnum.EQUAL],
+  float: [
+    SearchOperatorsEnum.EQUAL,
+    SearchOperatorsEnum.GREATER_THAN,
+    SearchOperatorsEnum.GREATER_THAN_OR_EQUAL,
+    SearchOperatorsEnum.LESS_THAN,
+    SearchOperatorsEnum.LESS_THAN_OR_EQUAL,
+  ],
+  integer: [
+    SearchOperatorsEnum.EQUAL,
+    SearchOperatorsEnum.GREATER_THAN,
+    SearchOperatorsEnum.GREATER_THAN_OR_EQUAL,
+    SearchOperatorsEnum.LESS_THAN,
+    SearchOperatorsEnum.LESS_THAN_OR_EQUAL,
+  ],
+  date: [
+    SearchOperatorsEnum.EQUAL,
+    SearchOperatorsEnum.GREATER_THAN,
+    SearchOperatorsEnum.GREATER_THAN_OR_EQUAL,
+    SearchOperatorsEnum.LESS_THAN,
+    SearchOperatorsEnum.LESS_THAN_OR_EQUAL,
+  ],
+  search_as_you_type: [SearchOperatorsEnum.SEARCH],
+};

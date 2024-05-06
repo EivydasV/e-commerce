@@ -2,16 +2,19 @@ import { MappingProperty } from '@elastic/elasticsearch/lib/api/types';
 
 export const elasticsearchPropertiesConstant: Record<string, MappingProperty> =
   {
-    id: { type: 'keyword' },
+    id: { type: 'keyword', ignore_above: 255 },
     title: { type: 'search_as_you_type' },
     description: { type: 'search_as_you_type' },
     categories: {
       type: 'nested',
       properties: {
-        name: { type: 'text' },
+        name: { type: 'keyword', ignore_above: 255 },
       },
     },
-    manufacturer: { type: 'text' },
+    manufacturer: {
+      type: 'text',
+      properties: { keyword: { type: 'keyword', ignore_above: 255 } },
+    },
     isPublished: { type: 'boolean' },
     variants: {
       type: 'nested',
@@ -20,12 +23,12 @@ export const elasticsearchPropertiesConstant: Record<string, MappingProperty> =
           type: 'nested',
           properties: {
             cost: { type: 'float' },
-            currency: { type: 'text' },
+            currency: { type: 'keyword', ignore_above: 255 },
             salePrice: { type: 'float' },
           },
         },
         quantity: { type: 'integer' },
-        color: { type: 'text' },
+        color: { type: 'keyword', ignore_above: 255 },
       },
     },
     createdAt: { type: 'date' },

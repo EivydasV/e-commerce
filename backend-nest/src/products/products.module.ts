@@ -20,6 +20,9 @@ import { ProductSearchResolver } from './resolvers/product-search.resolver';
 import { ElasticsearchToProductMapper } from './mappers/elasticsearch-to-product.mapper';
 import { productEventsConstant } from './constants/product-events.constant';
 import { EventEmitter } from '../db/emitters/event.emitter';
+import { CreateSuperAdminUserCommand } from '../users/cli/command/create-super-admin-user.command';
+import { CommandRunnerModule } from 'nest-commander';
+import { CreateSuperAdminUserQuestions } from '../users/cli/question-set/create-super-admin-user.question-set';
 
 @Module({
   imports: [
@@ -42,6 +45,10 @@ import { EventEmitter } from '../db/emitters/event.emitter';
     MongooseModule.forFeature([
       { name: ProductVariant.name, schema: ProductVariantSchema },
     ]),
+    CommandRunnerModule.forModule({
+      module: ProductsModule,
+      providers: [ProductsIndexCommand],
+    }),
   ],
   providers: [
     ProductResolver,
@@ -49,7 +56,6 @@ import { EventEmitter } from '../db/emitters/event.emitter';
     ProductRepository,
     ProductVariantResolver,
     ProductVariantService,
-    ProductsIndexCommand,
     ProductElasticsearchRepository,
     PostSaveProductListener,
     ProductSearchService,

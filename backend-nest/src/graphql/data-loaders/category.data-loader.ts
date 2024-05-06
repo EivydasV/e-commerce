@@ -1,8 +1,9 @@
 import { Injectable, Scope } from '@nestjs/common';
 import DataLoader from 'dataloader';
-import { DocId } from '../../db/types/doc-id.type';
-import { CategoryRepository } from '../../categories/repositories/category.repository';
-import { CategoryDocument } from '../../categories/schemas/category.schema';
+import { DocId } from 'src/db/types/doc-id.type';
+import { CategoryRepository } from 'src/categories/repositories/category.repository';
+import { CategoryDocument } from 'src/categories/schemas/category.schema';
+import { idsToDocumentsMapper } from 'src/graphql/helpers/ids-to-documents-mapper.helper';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CategoryDataLoader extends DataLoader<DocId, CategoryDocument> {
@@ -17,9 +18,6 @@ export class CategoryDataLoader extends DataLoader<DocId, CategoryDocument> {
       _id: { $in: categoryIds },
     });
 
-    return categoryIds.map(
-      (categoryId) =>
-        categories.find((doc) => doc._id.toString() === categoryId.toString())!,
-    );
+    return idsToDocumentsMapper(categories, categoryIds);
   }
 }

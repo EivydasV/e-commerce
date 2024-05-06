@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+enum Actions {
+  Create
+  Delete
+  Manage
+  Read
+  Update
+}
+
 type Autocomplete {
   description: String!
   title: String!
@@ -38,6 +46,12 @@ input CreateCategoryInput {
   name: String!
 }
 
+input CreatePermissionInput {
+  action: Actions!
+  conditions: [QueryFilterInput!]
+  subject: Subjects!
+}
+
 input CreateProductInput {
   description: String!
   manufacturer: String!
@@ -49,6 +63,10 @@ input CreateProductVariantInput {
   pricing: PricingInput!
   productDimensions: ProductDimensionsInput!
   quantity: Int!
+}
+
+input CreateRoleInput {
+  name: String!
 }
 
 input CreateUserInput {
@@ -65,6 +83,16 @@ scalar DateTime
 
 scalar DocId
 
+input FilterInput {
+  compareTo: String
+  operator: FilterOperator
+}
+
+enum FilterOperator {
+  EQ
+  NE
+}
+
 input ForgotPasswordInput {
   email: String!
 }
@@ -76,6 +104,11 @@ type Hits {
   _source: Autocomplete!
 }
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
 input LoginInput {
   email: String!
   password: String!
@@ -83,17 +116,23 @@ input LoginInput {
 
 type Mutation {
   addToCart(createCartInput: CreateCartInput!, productId: [DocId!]!, productVariantId: [DocId!]!): Boolean!
+  assignRoleToUser(roleId: DocId!, userId: DocId!): Boolean!
   createCategory(createCategoryInput: CreateCategoryInput!, parentId: DocId): Category!
+  createPermission(createPermissionInput: CreatePermissionInput!, roleId: DocId!): Boolean!
   createProduct(categoryIds: [DocId!]!, createProductInput: CreateProductInput!): Product!
   createProductVariant(productId: DocId!, productVariantInput: [CreateProductVariantInput!]!): Product!
+  createRole(createRoleInput: CreateRoleInput!): Boolean!
   createUser(input: CreateUserInput!): Boolean!
   deleteProduct(productId: DocId!): Boolean!
+  deleteRole(roleId: DocId!): Boolean!
   forgotPassword(input: ForgotPasswordInput!): Boolean!
   login(loginInput: LoginInput!): Boolean!
   logout: Boolean!
+  removePermission(permissionId: DocId!, roleId: DocId!): Boolean!
   removeProductVariant(productId: DocId!, variantId: DocId!): Product!
   resetPassword(input: ResetPasswordInput!): Boolean!
   updateProduct(productId: DocId!, updateProductInput: UpdateProductInput!): Product!
+  updateRole(roleId: DocId!, updateRoleInput: UpdateRoleInput!): Boolean!
   updateUser(input: UpdateUserInput!): Boolean!
 }
 
@@ -128,13 +167,17 @@ enum Operators {
   EQUAL
   GREATER_THAN
   GREATER_THAN_OR_EQUAL
-  IN
   LESS_THAN
   LESS_THAN_OR_EQUAL
   LIKE
-  NOT_EQUAL
-  NOT_IN
-  NOT_LIKE
+  SEARCH
+}
+
+type Permission {
+  _id: DocId!
+  action: Actions!
+  conditions: JSON
+  subject: Subjects!
 }
 
 type Pricing {
@@ -197,14 +240,27 @@ type Query {
   findProductsBySeller(paginate: OffsetPaginationInput, sellerId: DocId!): OffsetPaginatedProduct!
   findUserByEmail(email: String!): User
   findUsers(paginate: OffsetPaginationInput): OffsetPaginatedUser!
+  getRoleByName(name: String!): Role!
+  getRoles: [Role!]!
   me: User!
   searchProducts(paginate: OffsetPaginationInput, searchProductInputs: SearchProductInput): OffsetPaginatedProduct!
+}
+
+input QueryFilterInput {
+  field: String
+  filter: FilterInput
 }
 
 input ResetPasswordInput {
   email: String!
   forgotPasswordToken: String!
   password: String!
+}
+
+type Role {
+  _id: DocId!
+  name: String!
+  permissions: [Permission!]
 }
 
 input SearchInput {
@@ -217,11 +273,24 @@ input SearchProductInput {
   queries: [SearchInput!]!
 }
 
+enum Subjects {
+  All
+  Cart
+  Category
+  Product
+  Role
+  User
+}
+
 input UpdateProductInput {
   description: String
   isPublished: Boolean
   manufacturer: String
   title: String
+}
+
+input UpdateRoleInput {
+  name: String
 }
 
 input UpdateUserInput {
@@ -237,6 +306,7 @@ type User {
   email: String!
   firstName: String!
   lastName: String!
+  role: Role
   updatedAt: DateTime
 }
 
